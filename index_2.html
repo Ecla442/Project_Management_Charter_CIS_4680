@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Management Charter - CIS 4680</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .header .subtitle {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 1rem;
+        }
+        
+        .project-summary {
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 15px;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .deliverable {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .deliverable:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .deliverable-header {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        
+        .deliverable-header:hover {
+            background: linear-gradient(45deg, #5a6fd8, #6a4190);
+        }
+        
+        .deliverable-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .deliverable-number {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .toggle-icon {
+            font-size: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .deliverable.expanded .toggle-icon {
+            transform: rotate(180deg);
+        }
+        
+        .deliverable-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease;
+        }
+        
+        .deliverable.expanded .deliverable-content {
+            max-height: 2000px;
+        }
+        
+        .work-package {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
+            padding: 1rem 1.5rem;
+            margin: 1rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .work-package-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .task {
+            background: rgba(255, 255, 255, 0.1);
+            margin: 0.5rem 0;
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid #00b894;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+        }
+        
+        .task:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(10px);
+        }
+        
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .task-id {
+            font-weight: bold;
+            color: #00b894;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 0.25rem 0.5rem;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .task-duration {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        
+        .task-description {
+            margin: 0.5rem 0;
+            line-height: 1.5;
+        }
+        
+        .task-dependency {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+            font-style: italic;
+            margin-top: 0.5rem;
+            padding-top: 0.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .navigation {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 1rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+        
+        .nav-item {
+            display: block;
+            padding: 0.5rem 1rem;
+            color: #667eea;
+            text-decoration: none;
+            border-radius: 8px;
+            margin: 0.25rem 0;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .nav-item:hover {
+            background: #667eea;
+            color: white;
+            transform: translateX(5px);
+        }
+        
+        .stats-bar {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 1rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat {
+            text-align: center;
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+            display: block;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+        
+        .expand-all {
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 0 0.5rem 2rem 0;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .expand-all:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .collapse-all {
+            background: linear-gradient(45deg, #a29bfe, #6c5ce7);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .collapse-all:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .navigation {
+                position: static;
+                margin-bottom: 2rem;
+            }
+            
+            .stats-bar {
+                flex-direction: column;
+            }
+            
+            .deliverable-header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+        }
+        
+        .progress-indicator {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 2px;
+            margin-top: 1rem;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #00b894, #00cec9);
+            width: 0%;
+            transition: width 1s ease;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Project Management Charter</h1>
+            <div class="subtitle">CIS 4680 - Portfolio Website Development Project</div>
+            <div class="project-summary">
+                📊 Project Portfolio Development | 83 Days Total Duration
+            </div>
+        </div>
+
+        <div class="navigation">
+            <a href="#overview" class="nav-item">📋 Overview</a>
+            <a href="#scope" class="nav-item">🎯 Scope</a>
+            <a href="#deliverable1" class="nav-item">🔧 Technical Setup</a>
+            <a href="#deliverable2" class="nav-item">🎨 UI Design</a>
+            <a href="#deliverable3" class="nav-item">💼 Professional Steps</a>
+            <a href="#deliverable4" class="nav-item">🌐 Networking</a>
+            <a href="#risks" class="nav-item">⚠️ Risks</a>
+        </div>
+
+        <div class="stats-bar">
+            <div class="stat">
+                <span class="stat-number" style="transform: scale(1);">4</span>
+                <div class="stat-label">Deliverables</div>
+            </div>
+            <div class="stat">
+                <span class="stat-number" style="transform: scale(1);">40</span>
+                <div class="stat-label">Total Tasks</div>
+            </div>
+            <div class="stat">
+                <span class="stat-number" style="transform: scale(1);">83</span>
+                <div class="stat-label">Project Days</div>
+            </div>
+            <div class="stat">
+                <span class="stat-number" style="transform: scale(1);">100%</span>
+                <div class="stat-label">Success Rate</div>
+            </div>
+        </div>
+
+        <div style="margin-bottom: 2rem;">
+            <button class="expand-all" onclick="expandAll()">📖 Expand All Sections</button>
+            <button class="collapse-all" onclick="collapseAll()">📚 Collapse All Sections</button>
+        </div>
+
+        <!-- Project Overview Section -->
+        <div class="deliverable" id="overview">
+            <div class="deliverable-header" onclick="toggleDeliverable('overview')">
+                <div class="deliverable-title">
+                    <div class="deliverable-number">📋</div>
+                    <div>
+                        <div>Project Overview</div>
+                        <div style="font-size: 0.9rem; opacity: 0.8;">(Mission, Vision &amp; Values)</div>
+                    </div>
+                </div>
+                <div class="toggle-icon">▼</div>
+            </div>
+            <div class="deliverable-content">
+                <div class="work-package">
+                    <div class="work-package-title">🎯 Mission Statement</div>
+                    <div style="background: rgba(255, 255, 255, 0.2); padding: 1.5rem; border-radius: 10px; margin: 1rem 0; line-height: 1.6;">
+                        To develop a comprehensive, professional portfolio website that showcases technical expertise, demonstrates practical skills, and establishes a strong digital presence for career advancement in the technology industry.
+                    </div>
+                </div>
+
+                <div class="work-package" style="background: linear-gradient(135deg, #a29bfe, #6c5ce7);">
+                    <div class="work-package-title">🚀 Vision Statement</div>
+                    <div style="background: rgba(255, 255, 255, 0.2); padding: 1.5rem; border-radius: 10px; margin: 1rem 0; line-height: 1.6;">
+                        To create a cutting-edge portfolio platform that not only displays technical competencies but also serves as a launchpad for professional networking, business opportunities, and continuous career growth in the digital landscape.
+                    </div>
+                </div>
+
+                <div class="work-package" style="background: linear-gradient(135deg, #00b894, #00cec9);">
+                    <div class="work-package-title">💎 Core Values</div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin: 1rem 0;">
+                        <div style="background: rgba(255, 255, 255, 0.2); padding: 1rem; border-radius: 8px;">
+                            <div style="font-weight: bold; margin-bottom: 0.5rem;">🔧 Technical Excellence</div>
+                            <div style="font-size: 0.9rem;">Commitment to implementing industry best practices and cutting-edge technologies</div>
+                        </div>
+                        <div style="background: rgba(255, 255, 255, 0.2); padding: 1rem; border-radius: 8px;">
+                            <div style="font-weight: bold; margin-bottom: 0.5rem;">🎨 User Experience</div>
+                            <div style="font-size: 0.9rem;">Focus on creating intuitive, engaging, and accessible user interfaces</div>
+                        </div>
+                        <div style="background: rgba(255, 255, 255, 0.2); padding: 1rem; border-radius: 8px;">
+                            <div style="font-weight: bold; margin-bottom: 0.5rem;">🔒 Security First</div>
+                            <div style="font-size: 0.9rem;">Implementing robust security measures and following cybersecurity protocols</div>
+                        </div>
+                        <div style="background: rgba(255, 255, 255, 0.2); padding: 1rem; border-radius: 8px;">
+                            <div style="font-weight: bold; margin-bottom: 0.5rem;">📈 Continuous Growth</div>
+                            <div style="font-size: 0.9rem;">Embracing feedback, iteration, and ongoing professional development</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Project Scope Section -->
+        <div class="deliverable" id="scope">
+            <div class="deliverable-header" onclick="toggleDeliverable('scope')">
+                <div class="deliverable-title">
+                    <div class="deliverable-number">🎯</div>
+                    <div>
+                        <div>Project Scope &amp; Objectives</div>
+                        <div style="font-size: 0.9rem; opacity: 0.8;">(What's Included &amp; Success Criteria)</div>
+                    </div>
+                </div>
+                <div class="toggle-icon">▼</div>
+            </div>
+            <div class="deliverable-content">
+                <div class="work-package">
+                    <div class="work-package-title">📝 Project Objectives</div>
+                    <div style="display: grid; gap: 1rem; margin: 1rem 0;">
+                        <div style="background: rgba(255, 255, 255, 0.2); padding: 1rem; border-radius: 8px; border-left: 4px solid #00b894;">
+                            <strong>Primary Objective:</strong> Develop a fully functional, professional portfolio website with backend infrastructure, modern UI/UX design, and comprehensive content management capabilities.
+                        </div>
+                        <div style="background: rgba(255, 255, 255, 0.2); padding: 1rem; border-radius: 8px; border-left: 4px solid #74b9ff;">
+                            <strong>Secondary Objective:</strong> Establish professional networking channels and implement strategic marketing approaches to maximize career opportunities.
+                        </div>
+                        <div style="background: rgba(255, 255, 255, 0.2); padding: 1rem; border-radius: 8px; border-left: 4px solid #a29bfe;">
+                            <strong>Long-term Objective:</strong> Create a scalable platform for future business ventures and consulting opportunities.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="work-package" style="background: linear-gradient(135deg, #FF6B6B, #4ECDC4);">
+                    <div class="work-package-title">✅ Success Criteria</div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin: 1rem 0;">
+                        <div style="background: rgba(255, 255, 255, 0.2); padding: 1rem; border-radius: 8px;">
+                            <div style="font-weight: bold; margin-bottom: 0.5rem;">🚀 Technical Success</div>
+                            <ul style="font-size: 0.9rem; margin-left: 1rem; line-height: 1.5;">
+                                <li>99.9% uptime and optimal performance</li>
+                                <li>SSL certification and security compliance</li>
+                                <li>Cross-browser compatibility</li>
+                                <li>Mobile-responsive design</li>
+                                <li>SEO optimization</li>
+                            </ul>
+                        </div>
+                        <div style="background: rgba(255, 255, 255, 0.2); padding: 1rem; border-radius: 8px;">
+                            <div style="font-weight: bold; margin-bottom: 0.5rem;">💼 Professional Success</div>
+                            <ul style="font-size: 0.9rem; margin-left: 1rem; line-height: 1.5;">
+                                <li>Portfolio showcases 5+ key projects</li>
+                                <li>Professional resume integration</li>
+                                <li>Contact form functionality</li>
+                                <li>Social media integration</li>
+                                <li>Professional networking presence</li>
+                            </ul>
+                        </div>
+                        <div style="background: rgba(255, 255, 255, 0.2); padding: 1rem; border-radius: 8px;">
+                            <div style="font-weight: bold; margin-bottom: 0.5rem;">🎯 Business Success</div>
+                            <ul style="font-size: 0.9rem; margin-left: 1rem; line-height: 1.5;">
+                                <li>Domain authority establishment</li>
+                                <li>Search engine visibility</li>
+                                <li>Professional inquiries generated</li>
+                                <li>Networking connections made</li>
+                                <li>Consulting opportunities identified</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="work-package" style="background: linear-gradient(135deg, #fd79a8, #fdcb6e);">
+                    <div class="work-package-title">👥 Key Stakeholders</div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1rem 0;">
+                        <div style="background: rgba(255, 255, 255, 0.2); padding: 1rem; border-radius: 8px; text-align: center;">
+                            <div style="font-weight: bold; margin-bottom: 0.5rem;">🎓 Project Owner</div>
+                            <div style="font-size: 0.9rem;">CIS 4680 Student</div>
+                        </div>
+                        <div style="background: rgba(255, 255, 255, 0.2); padding: 1rem; border-radius: 8px; text-align: center;">
+                            <div style="font-weight: bold; margin-bottom: 0.5rem;">👨‍🏫 Academic Advisor</div>
+                            <div style="font-size: 0.9rem;">Course Instructor</div>
+                        </div>
+                        <div style="background: rgba(255, 255, 255, 0.2); padding: 1rem; border-radius: 8px; text-align: center;">
+                            <div style="font-weight: bold; margin-bottom: 0.5rem;">💼 Industry Contacts</div>
+                            <div style="font-size: 0.9rem;">Potential Employers</div>
+                        </div>
+                        <div style="background: rgba(255, 255, 255, 0.2); padding: 1rem; border-radius: 8px; text-align: center;">
+                            <div style="font-weight: bold; margin-bottom: 0.5rem;">🌐 Professional Network</div>
+                            <div style="font-size: 0.9rem;">LinkedIn Connections</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="work-package" style="background: linear-gradient(135deg, #6c5ce7, #a29bfe);">
+                    <div class="work-package-title">💰 Budget &amp; Resources</div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin: 1rem 0;">
+                        <div style="background: rgba(255, 255, 255, 0.2); padding: 1rem; border-radius: 8px;">
+                            <div style="font-weight: bold; margin-bottom: 0.5rem; color: #00b894;">💵 Estimated Costs</div>
+                            <ul style="font-size: 0.9rem; line-height: 1.6;">
+                                <li>Domain Registration: $15/year</li>
+                                <li>Web Hosting: $10-20/month</li>
+                                <li>SSL Certificate: $50-100/year</li>
+                                <li>Third-party Tools: $0-50/month</li>
+                                <li><strong>Total: ~$300-500/year</strong></li>
+                            </ul>
+                        </div>
+                        <div style="background: rgba(255, 255, 255, 0.2); padding: 1rem; border-radius: 8px;">
+                            <div style="font-weight: bold; margin-bottom: 0.5rem; color: #74b9ff;">🛠️ Required Resources</div>
+                            <ul style="font-size: 0.9rem; line-height: 1.6;">
+                                <li>Development Environment</li>
+                                <li>Design Software/Tools</li>
+                                <li>Content Creation Tools</li>
+                                <li>Project Management Software</li>
+                                <li>Testing &amp; Analytics Tools</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="deliverable" id="deliverable1">
+            <div class="deliverable-header" onclick="toggleDeliverable(1)">
+                <div class="deliverable-title">
+                    <div class="deliverable-number">1</div>
+                    <div>
+                        <div>🔧 Technical Expertise</div>
+                        <div style="font-size: 0.9rem; opacity: 0.8;">(Admin/Backend Portal Setup)</div>
+                    </div>
+                </div>
+                <div class="toggle-icon">▼</div>
+            </div>
+            <div class="deliverable-content">
+                <div class="work-package">
+                    <div class="work-package-title">📋 Admin Portal/Configuration Setup</div>
+                    
+                    <div class="task">
+                        <div class="task-header">
+                            <div class="task-id">1.1.1</div>
+                            <div class="task-duration">2 days</div>
+                        </div>
+                        <div class="task-description">Search for website hosting services (Wix, WordPress, etc.)</div>
+                    </div>
+                    
+                    <div class="task">
+                        <div class="task-header">
+                            <div class="task-id">1.1.2</div>
+                            <div class="task-duration">3 days</div>
+                        </div>
+                        <div class="task-description">Search for a website provider</div>
+                        <div class="task-dependency">🔗 Depends on: 1.1.1 - Search for website hosting services</div>
+                    </div>
+                    
+                    <div class="task">
+                        <div class="task-header">
+                            <div class="task-id">1.1.3</div>
+                            <div class="task-duration">1 day</div>
+                        </div>
+                        <div class="task-description">Pay for cloud provider and hosting services</div>
+                        <div class="task-dependency">🔗 Depends on: 1.1.2 - Search for a website provider</div>
+                    </div>
+                    
+                    <div class="task">
+                        <div class="task-header">
+                            <div class="task-id">1.1.4</div>
+                            <div class="task-duration">1 day</div>
+                        </div>
+                        <div class="task-description">Explore Domain Portal</div>
+                        <div class="task-dependency">🔗 Depends on: 1.1.3 - Pay for cloud provider and hosting services</div>
+                    </div>
+                    
+                    <div class="task">
+                        <div class="task-header">
+                            <div class="task-id">1.1.5</div>
+                            <div class="task-duration">2 days</div>
+                        </div>
+                        <div class="task-description">Set-up Database Tables for SQL Expertise</div>
+                        <div class="task-dependency">🔗 Depends on: 1.1.4 - Go through Website Builder portal</div>
+                    </div>
+                    
+                    <div class="task">
+                        <div class="task-header">
+                            <div class="task-id">1.1.6</div>
+                            <div class="task-duration">1 day</div>
+                        </div>
+                        <div class="task-description">Use security concepts for secure site set-up (SSL, Site Certificates, Backend Security)</div>
+                        <div class="task-dependency">🔗 Depends on: 1.1.5 - Set-up Database Tables for SQL expertise</div>
+                    </div>
+                    
+                    <div class="task">
+                        <div class="task-header">
+                            <div class="task-id">1.1.7</div>
+                            <div class="task-duration">3 days</div>
+                        </div>
+                        <div class="task-description">Conduct usage of third party tools to set-up other features upon portfolio</div>
+                        <div class="task-dependency">🔗 Depends on: 1.1.6 - Use security concepts for secure site set-up</div>
+                    </div>
+                    
+                    <div class="task">
+                        <div class="task-header">
+                            <div class="task-id">1.1.8</div>
+                            <div class="task-duration">2 days</div>
+                        </div>
+                        <div class="task-description">Make changes, and have constructive feedback as necessary</div>
+                        <div class="task-dependency">🔗 Depends on: 1.1.7 - Conduct usage of third party tools</div>
+                    </div>
+                    
+                    <div class="task">
+                        <div class="task-header">
+                            <div class="task-id">1.1.9</div>
+                            <div class="task-duration">2 days</div>
+                        </div>
+                        <div class="task-description">Last touches for back-end set-up needed</div>
+                        <div class="task-dependency">🔗 Depends on: 1.1.8 - Make changes and constructive feedback</div>
+                    </div>
+                    
+                    <div class="task">
+                        <div class="task-header">
+                            <div class="task-id">1.1.10</div>
+                            <div class="task-duration">2 days</div>
+                        </div>
+                        <div class="task-description">Back-end set-up complete</div>
+                        <div class="task-dependency">🔗 Depends on: 1.1.9 - Last touches for back-end set-up needed</div>
+                    </div>
+                </div>
+                <div class="progress-indicator">
+                    <div class="progress-bar" style="width: 25%;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="deliverable" id="deliverable2">
+            <div class="deliverable-header" onclick="toggleDeliverable(2)">
+                <div class="deliverable-title">
+                    <div class="deliverable-number">2</div>
+                    <div>
+                        <div>🎨 System Setup Completion</div>
+                        <div style="font-size: 0.9rem; opacity: 0.8;">(UI Design Setup)</div>
+                    </div>
+                </div>
+                <div class="toggle-icon">▼</div>
+            </div>
+            <div class="deliverable-content">
+                <div class="work-package">
+                    <div class="work-package-title">🖥️ System/Website Markup &amp; Setup</div>
+                    
+                    <div class="task">
+                        <div class="task-header">
+                            <div class="task-id">2.1.1</div>
+                            <div class="task-duration">3 days</div>
+                        </div>
+                        <div class="task-description">Use Website Builder</div>
+                    </div>
+                    
+                    <div class="task">
+                        <div class="task-header">
+                            <div class="task-id">2.1.2</div>
+                            <div class="task-duration">0 days</div>
+                        </div>
+                        <div class="task-description">Find and create domain name that aligns with portfolio</div>
+                        <div class="task-dependency">🔗 Depends on: 2.1.1 - Use Website builder</div>
+                    </div>
+                    
+                    <div class="task">
+                        <div class="task-header">
+                            <div class="task-id">2.1.3</div>
+                            <div class="task-duration">2 days</div>
+                        </div>
+                        <div class="task-description">Set-up website structure for navigation purposes</div>
+                        <div class="task-dependency">🔗 Depends on: 2.1.2 - Find and create domain name that aligns with portfolio</div>
+                    </div>
+                    
+                    <div class="task">
+                        <div class="task-header">
+                            <div class="task-id">2.1.4</div>
+                            <div class="task-duration">4 days</div>
+                        </div>
+                        <div class="task-description">Use page templates or set-up from scratch (HTML, or otherwise. Website Design)</div>
+                        <div class="task-dependency">🔗 Depends on: 2.1.3 - Set-up website structure for navigation purposes</div>
+                    </div>
+                    
+                    <div class="task">
+                        <div class="task-header">
+                            <div class="task-id">2.1.5</div>
+                            <div class="task-duration">1 day</div>
+                        </div>
+                        <div class="task-description">Code in different sections (Contact, About me, etc)</div>
+                        <div class="task-dependency">🔗 Depends on: 2.1.4 - Use page templates or set-up from scratch</div>
+                    </div>
+                    
+                    <div class="task">
+                        <div class="task-header">
+                            <div class="task-id">2.1.6</div>
+                            <div class="task-duration">1 day</div>
+                        </div>
+                        <div class="task-description">Test site security from Admin portal for proper set-up</div>
+                        <div class="task-dependency">🔗 Depends on: 2.1.5 - Code in different sections</div>
+                    </div>
+                    
+                    <div class="task">
+                        <div class="task-header">
+                            <div class="task-id">2.1.7</div>
+                            <div class="task-duration">2 days</div>
+                        </div>
+                        <div class="task-description">Add AI elements to make website more unique</div>
+                        <div class="task-dependency">🔗 Depends on: 2.1.6 - Test site security from Admin portal</div>
+                    </div>
+                    
+                    <div class="task">
+                        <div class="task-header">
+                            <div class="task-id">2.1.8</div>
+                            <div class="task-duration">1 day</div>
+                        </div>
+                        <div class="task-description">Create back-up in case of any lost project</div>
+                        <div class="task-dependency">🔗 Depends on: 2.1.7 - Add AI elements to make website more unique</div>
+                    </div>
+                    
+                    <div class="task">
+                        <div class="task-header">
+                            <div class="task-id">2.1.9</div>
+                            <div class="task-duration">1 day</div>
+                        </div>
+                        <div class="task-description">Test DNS configuration function to make sure portfolio domain name resolves</div>
+                        <div class="task-dependency">🔗 Depends on: 2.1.8 - Create back-up in case of any lost project</div>
+                    </div>
+                    
+                    <div class="task">
+                        <div class="task-header">
+                            <div class="task-id">2.1.10</div>
+                            <div class="task-duration">1 day</div>
+                        </div>
+                        <div class="task-description">DNS Config complete, domain site is ready</div>
+                        <div class="task-dependency">🔗 Depends on: 2.1.9 - Test DNS configuration function</div>
+                    </div>
+                </div>
+                <div class="progress-indicator">
+                    <div class="progress-bar" style="width: 50%;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="deliverable" id="deliverable3">
+            <div class="deliverable-header" onclick="toggleDeliverable(3)">
+                <div class="deliverable-title">
+                    <div class="deliverable-number">3</div>
+                    <div>
+                        <div>💼 Professional Implications</div>
+                        <div style="font-size: 0.9rem; opacity: 0.8;">(Next Steps)</div>
+                    </div>
+                </div>
+                <div class="toggle-icon">▼</div>
+            </div>
+            <div class="deliverable-content">
+                <div class="work-package">
+                    <div class="work-package-title">🎯 Professional Implications</div>
+                    
+                    <div class="task">
+                        <div class="task-header">
+                            <div class="task-id">3.1.1</div>
+                            <div class="task-duration">0 days</div>
+                        </div>
+                        <div class="task-description">Cross browser testing</div>
+                    </div>
+                    
+                    <div class="task">
+                        <div class="task-header">
+                            <div class="task-id">3.1.2</div>
+                            <div class="task-duration">0 days</div>
+                        </div>
+                        <div class="task-description">Confirmation of host name is live, and on search engines</div>
+                        <div class="task-dependency">🔗 Depends on: 3.1.1 - Cross Browser Testing</div>
+                    </div>
+                    
+                    <div class="task">
+                        <div class="task-header">
+                            <div class="task-id">3.1.3</div>
+                            <div class="task-duration">1 day</div>
+                        </div>
+                        <div class="task-description">Get any constructive feedback on what may need to be done next</div>
+                        <div class="task-dependency">🔗 Depends on: 3.1.2 - Confirmation of host name is live</div>
+                    </div>
+                    
+                    <div class="task">
+                        <div class="task-header">
+                            <div class="task-id">3.1.4</div>
+                            <div class="task-duration">1 day</div>
+                        </div>
+                        <div class="task-description">Go through site layout to see progress</div>
+                        <div class="task-dependency">🔗 Depends on: 3.1.3 - Get any constructive feedback</div>
+                    </div>
+                    
+                    <div class="task">
+                        <div class="task-header">
+                            <div class="task-id">3.1.5</div>
+                            <div class="task-duration">2 days</div>
+                        </div>
+                        <div class="task-description">Conduct more research on how other portfolio's are done</div>
+                        <div class="task-dependency">🔗 Depends on: 3.1.4 - Go through site layout to see progress</div>
+                    </div>
+                    
+                    <div class="task">
+                        <div class="task-header">
+                            <div class="task-id">3.1.6</div>
+                            <div class="task-duration">2 days</div>
+                        </div>
+                        <div class="task-description">Conduct changes if needed</div>
+                        <div class="task-dependency">🔗 Depends on: 3.1.5 - Conduct more research on portfolios</div>
+                    </div>
+                    
+                    <div class="task">
+                        <div class="task-header">
+                            <div class="task-id">3.1.7</div>
+                            <div class="task-duration">0 days</div>
+                        </div>
+                        <div class="task-description">Completion of browser testing, site is live</div>
+                        <div class="task-dependency">🔗 Depends on: 3.1.6 - Conduct changes if needed</div>
+                    </div>
+                    
+                    <div class="task">
+                        <div class="task-header">
+                            <div class="task-id">3.1.8</div>
+                            <div class="task-duration">3 days</div>
+                        </div>
+                        <div class="task-description">Implement projects through educational cycle (i.e. internships, school projects)</div>
+                        <div class="task-dependency">🔗 Depends on: 3.1.7 - Completion of browser testing, site is live</div>
+                    </div>
+                    
+                    <div class="task">
+                        <div class="task-header">
+                            <div class="task-id">3.1.9</div>
+                            <div class="task-duration">2 days</div>
+                        </div>
+                        <div class="task-description">Implement resume and professional details</div>
+                        <div class="task-dependency">🔗 Depends on: 3.1.8 - Implement resume and professional details</div>
+                    </div>
+                    
+                    <div class="task">
+                        <div class="task-header">
+                            <div class="task-id">3.1.10</div>
+                            <div class="task-duration">2 days</div>
+                        </div>
+                        <div class="task-description">Link important websites (LinkedIn, Social Medias) if necessary</div>
+                        <div class="task-dependency">🔗 Depends on: 3.1.9 - Implement resume and professional details</div>
+                    </div>
+                </div>
+                <div class="progress-indicator">
+                    <div class="progress-bar" style="width: 75%;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="deliverable" id="deliverable4">
+            <div class="deliverable-header" onclick="toggleDeliverable(4)">
+                <div class="deliverable-title">
+                    <div class="deliverable-number">4</div>
+                    <div>
+                        <div>🌐 Networking Implications</div>
+                        <div style="font-size: 0.9rem; opacity: 0.8;">(Next Steps)</div>
+                    </div>
+                </div>
+                <div class="toggle-icon">▼</div>
+            </div>
+            <div class="deliverable-content">
+                <div class="work-package">
+                    <div class="work-package-title">🤝 Networking Processes</div>
+                    
+                    <div class="task">
+                        <div class="task-header">
+                            <div class="task-id">4.1.1</div>
+                            <div class="task-duration">1 day</div>
+                        </div>
+                        <div class="task-description">Spread Portfolio on Professional Websites</div>
+                    </div>
+                    
+                    <div class="task">
+                        <div class="task-header">
+                            <div class="task-id">4.1.2</div>
+                            <div class="task-duration">1 day</div>
+                        </div>
+                        <div class="task-description">Attend networking events</div>
+                        <div class="task-dependency">🔗 Depends on: 4.1.1 - Spread Portfolio</div>
+                    </div>
+                    
+                    <div class="task">
+                        <div class="task-header">
+                            <div class="task-id">4.1.3</div>
+                            <div class="task-duration">2 days</div>
+                        </div>
+                        <div class="task-description">Make business cards with portfolio to showcase</div>
+                        <div class="task-dependency">🔗 Depends on: 4.1.2 - Attend Networking Events</div>
+                    </div>
+                    
+                    <div class="task">
+                        <div class="task-header">
+                            <div class="task-id">4.1.4</div>
+                            <div class="task-duration">1 day</div>
+                        </div>
+                        <div class="task-description">Join online forums</div>
+                        <div class="task-dependency">🔗 Depends on: 4.1.3 - Make business cards with portfolio to showcase</div>
+                    </div>
+                    
+                    <div class="task">
+                        <div class="task-header">
+                            <div class="task-id">4.1.5</div>
+                            <div class="task-duration">1 day</div>
+                        </div>
+                        <div class="task-description">Feedback in regards to portfolio</div>
+                        <div class="task-dependency">🔗 Depends on: 4.1.4 - Join online forums</div>
+                    </div>
+                    
+                    <div class="task">
+                        <div class="task-header">
+                            <div class="task-id">4.1.6</div>
+                            <div class="task-duration">0 days</div>
+                        </div>
+                        <div class="task-description">Join organizations (ISC2, PMI-LA, etc.)</div>
+                        <div class="task-dependency">🔗 Depends on: 4.1.5 - Portfolio feedback</div>
+                    </div>
+                    
+                    <div class="task">
+                        <div class="task-header">
+                            <div class="task-id">4.1.7</div>
+                            <div class="task-duration">1 day</div>
+                        </div>
+                        <div class="task-description">Implement portfolio on resume</div>
+                        <div class="task-dependency">🔗 Depends on: 4.1.6 - Join organizations</div>
+                    </div>
+                    
+                    <div class="task">
+                        <div class="task-header">
+                            <div class="task-id">4.1.8</div>
+                            <div class="task-duration">2 days</div>
+                        </div>
+                        <div class="task-description">Make websites for any other businesses that you have in mind</div>
+                        <div class="task-dependency">🔗 Depends on: 4.1.7 - Implement Portfolio on Resume</div>
+                    </div>
+                    
+                    <div class="task">
+                        <div class="task-header">
+                            <div class="task-id">4.1.9</div>
+                            <div class="task-duration">2 days</div>
+                        </div>
+                        <div class="task-description">Offer consulting tasks to others</div>
+                        <div class="task-dependency">🔗 Depends on: 4.1.8 - Make websites for other business you have in mind</div>
+                    </div>
+                    
+                    <div class="task">
+                        <div class="task-header">
+                            <div class="task-id">4.1.10</div>
+                            <div class="task-duration">2 days</div>
+                        </div>
+                        <div class="task-description">Complete project, and source out contacts and other info from there</div>
+                        <div class="task-dependency">🔗 Depends on: 4.1.9 - Create Contacts</div>
+                    </div>
+                </div>
+                <div class="progress-indicator">
+                    <div class="progress-bar" style="width: 100%;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleDeliverable(id) {
+            const deliverable = document.getElementById(`deliverable${id}`);
+            deliverable.classList.toggle('expanded');
+        }
+
+        function expandAll() {
+            const deliverables = document.querySelectorAll('.deliverable');
+            deliverables.forEach(deliverable => {
+                deliverable.classList.add('expanded');
+            });
+        }
+
+        function collapseAll() {
+            const deliverables = document.querySelectorAll('.deliverable');
+            deliverables.forEach(deliverable => {
+                deliverable.classList.remove('expanded');
+            });
+        }
+
+        // Smooth scrolling for navigation
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                    // Expand the section when navigating to it
+                    const deliverableNumber = this.getAttribute('href').replace('#deliverable', '');
+                    const deliverable = document.getElementById(`deliverable${deliverableNumber}`);
+                    if (deliverable) {
+                        deliverable.classList.add('expanded');
+                    }
+                }
+            });
+        });
+
+        // Add some interactive animations on load
+        window.addEventListener('load', function() {
+            const stats = document.querySelectorAll('.stat-number');
+            stats.forEach((stat, index) => {
+                setTimeout(() => {
+                    stat.style.transform = 'scale(1.1)';
+                    setTimeout(() => {
+                        stat.style.transform = 'scale(1)';
+                    }, 300);
+                }, index * 200);
+            });
+        });
+
+        // Add hover effects for tasks
+        document.querySelectorAll('.task').forEach(task => {
+            task.addEventListener('mouseenter', function() {
+                this.style.borderLeftWidth = '6px';
+            });
+            
+            task.addEventListener('mouseleave', function() {
+                this.style.borderLeftWidth = '4px';
+            });
+        });
+    </script>
+
+</body></html>
