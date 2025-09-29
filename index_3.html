@@ -100,6 +100,34 @@
       .kpi{ grid-template-columns:1fr }
       .fab{ bottom:18px; right:18px }
     }
+    <style>
+  /* Compact spacing just for Stakeholder Map + Project Tools */
+  #stakeholder-map, #project-tools { padding-block: 0.6rem !important; }
+
+  #stakeholder-map :is(h2,h3,h4),
+  #project-tools :is(h2,h3,h4) {
+    margin-block: 0.4rem !important;
+    line-height: 1.15;
+  }
+
+  #stakeholder-map :is(p,ul,ol,table,blockquote,pre,code),
+  #project-tools :is(p,ul,ol,table,blockquote,pre,code) {
+    margin-block: 0.35rem !important;
+  }
+
+  #stakeholder-map :is(img,figure),
+  #project-tools :is(img,figure) {
+    margin-block: 0.4rem !important;
+    display: block;
+  }
+
+  /* If those sections use grid/flex rows, reduce inner gaps */
+  #stakeholder-map :is(.grid,.flex,[class*="grid"],[class*="flex"]),
+  #project-tools :is(.grid,.flex,[class*="grid"],[class*="flex"]) {
+    gap: 0.5rem !important;
+  }
+</style>
+
   </style>
 </head>
 <body class="light">
@@ -271,6 +299,7 @@
         </div>
       </details>
 
+      <section id="stakeholder-map"> 
       <!-- 5a. Stakeholder Map (Visual) -->
       <details class="section">
         <summary><span class="chev">▶</span><span class="sicon">🗺️</span><span id="s5a">5a. Stakeholder Map (Visual)</span></summary>
@@ -304,6 +333,7 @@
           </svg>
         </div>
       </details>
+      </section>
 
       <!-- 6. Deliverables -->
       <details class="section">
@@ -483,7 +513,7 @@
           </svg>
         </div>
       </details>
-
+      <section id=" project tools"> 
       <!-- 11. Project Tools -->
       <details class="section">
         <summary><span class="chev">▶</span><span class="sicon">🧰</span><span id="s11">11. Project Tools</span></summary>
@@ -515,6 +545,8 @@
           </figure>
         </div>
       </details>
+      </section>
+      
 
       <p class="foot">Tip: Use the sidebar to jump between sections. Press <kbd>Ctrl/Cmd + F</kbd> to use built-in browser search, or the search box to filter sections live.</p>
     </main>
