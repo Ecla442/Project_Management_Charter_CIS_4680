@@ -1,6 +1,7 @@
 <!DOCTYPE html>
-<html lang="en"><head>
-  <meta charset="utf-8">
+<html lang="en">
+  <head>    
+    <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title> Project Charter</title>
   <style>
@@ -131,6 +132,8 @@
 
   </style>
 </head>
+
+  
 <body class="light">
   <div id="progress" style="position: fixed; inset: 0px auto auto 0px; height: 4px; width: 100%; background: linear-gradient(90deg,var(--brand),var(--brand-2)); z-index: 1000; box-shadow: rgba(0, 0, 0, 0.133) 0px 6px 12px;"></div>
   <div class="app">
@@ -537,7 +540,55 @@
         </div>
       </details>
       </section>
-      
+
+
+  <!-- STATUS REPORTS SECTION -->
+<section id="status-reports" style="margin-top: 40px;">
+  <h2 onclick="toggleStatusReports()" style="cursor:pointer; background-color:#f2f2f2; padding:10px; border-radius:5px;">
+    ▶ Status Reports
+  </h2>
+  <div id="status-content" style="display:none; margin-top:10px; padding:10px; border:1px solid #ccc; border-radius:5px;">
+    <h3>Project Status Updates</h3>
+    <p>Track progress, key milestones, and next steps below.</p>
+
+    <table border="1" cellspacing="0" cellpadding="5" style="width:100%; border-collapse: collapse;">
+      <thead style="background-color:#e0e0e0;">
+        <tr>
+          <th>Date</th>
+          <th>Status Summary</th>
+          <th>Next Steps</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Oct 12, 2025</td>
+          <td>Project Charter completed and reviewed</td>
+          <td>Begin initial implementation phase</td>
+        </tr>
+        <tr>
+          <td>Oct 19, 2025</td>
+          <td>Setup development environment</td>
+          <td>Start coding main modules</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<script>
+function toggleStatusReports() {
+  const content = document.getElementById('status-content');
+  const header = document.querySelector('#status-reports h2');
+  if (content.style.display === 'none') {
+    content.style.display = 'block';
+    header.textContent = '▼ Status Reports';
+  } else {
+    content.style.display = 'none';
+    header.textContent = '▶ Status Reports';
+  }
+}
+</script>
+
 
       <p class="foot">Tip: Use the sidebar to jump between sections. Press <kbd>Ctrl/Cmd + F</kbd> to use built-in browser search, or the search box to filter sections live.</p>
     </main>
