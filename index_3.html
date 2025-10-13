@@ -542,37 +542,44 @@
       </section>
 
 
-  <!-- STATUS REPORTS SECTION -->
-<section id="status-reports" style="margin-top: 40px;">
-  <h2 onclick="toggleStatusReports()" style="cursor:pointer; background-color:#f2f2f2; padding:10px; border-radius:5px;">
-    ▶ Status Reports
-  </h2>
-  <div id="status-content" style="display:none; margin-top:10px; padding:10px; border:1px solid #ccc; border-radius:5px;">
-    <h3>Project Status Updates</h3>
-    <p>Track progress, key milestones, and next steps below.</p>
+<section id="status-reports">
+  <details class="section">
+    <summary>
+      <span class="chev">▶</span>
+      <span class="sicon">🗓️</span>
+      <span id="s6">6. Status Reports</span>
+    </summary>
 
-    <table border="1" cellspacing="0" cellpadding="5" style="width:100%; border-collapse: collapse;">
-      <thead style="background-color:#e0e0e0;">
+    <div class="section-body">
+      <p>Track weekly or milestone updates for the project. Update this table as you go.</p>
+
+      <table role="table" aria-label="Project Status Reports" style="width:100%; border-collapse:collapse; border:1px solid var(--border); border-radius:12px; overflow:hidden;">
+        <thead style="background:var(--panel);">
+          <tr>
+            <th scope="col" style="text-align:left; padding:.6rem; border-bottom:1px solid var(--border);">Date</th>
+            <th scope="col" style="text-align:left; padding:.6rem; border-bottom:1px solid var(--border);">Status Summary</th>
+            <th scope="col" style="text-align:left; padding:.6rem; border-bottom:1px solid var(--border);">Risks / Issues</th>
+            <th scope="col" style="text-align:left; padding:.6rem; border-bottom:1px solid var(--border);">Next Steps</th>
+          </tr>
+        </thead>
+        <tbody> 
+
         <tr>
-          <th>Date</th>
-          <th>Status Summary</th>
-          <th>Next Steps</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Oct 12, 2025</td>
-          <td>Project Charter completed and reviewed</td>
-          <td>Begin initial implementation phase</td>
-        </tr>
-        <tr>
-          <td>Oct 19, 2025</td>
-          <td>Setup development environment</td>
-          <td>Start coding main modules</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+            <td style="padding:.6rem; border-bottom:1px solid var(--border);">2025-10-12</td>
+            <td style="padding:.6rem; border-bottom:1px solid var(--border);">Charter finalized; stakeholder map completed.</td>
+            <td style="padding:.6rem; border-bottom:1px solid var(--border);">None identified.</td>
+            <td style="padding:.6rem; border-bottom:1px solid var(--border);">Kick off implementation; set sprint goals.</td>
+          </tr>
+          <tr>
+            <td style="padding:.6rem; border-bottom:1px solid var(--border);">2025-10-19</td>
+            <td style="padding:.6rem; border-bottom:1px solid var(--border);">Dev environment set up; core modules scaffolded.</td>
+            <td style="padding:.6rem; border-bottom:1px solid var(--border);">Timeline tight for testing window.</td>
+            <td style="padding:.6rem; border-bottom:1px solid var(--border);">Begin feature A; draft test plan.</td>
+          </tr>
+        </tbody>
+      </table>
+   </div>
+  </details>
 </section>
 
 <script>
