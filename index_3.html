@@ -551,20 +551,50 @@
     </summary>
 
     <div class="section-body">
-      <p>Track weekly or milestone updates for the project. Update this table as you go.</p>
+      <p>Track weekly or milestone updates for the project. Use the form to add a new entry.</p>
 
-      <table role="table" aria-label="Project Status Reports" style="width:100%; border-collapse:collapse; border:1px solid var(--border); border-radius:12px; overflow:hidden;">
+      <!-- Add New Update Form -->
+      <form id="status-form" style="display:grid; gap:.6rem; grid-template-columns: 160px 1fr 1fr 1fr; align-items:end; margin: 0 0 1rem 0;">
+        <div style="display:flex; flex-direction:column; gap:.25rem;">
+          <label for="sr-date" style="color:var(--muted);">Date</label>
+          <input id="sr-date" name="date" type="date" required
+                 style="padding:.5rem; border:1px solid var(--border); border-radius:8px; background:var(--panel); color:var(--text);" />
+        </div>
+        <div style="display:flex; flex-direction:column; gap:.25rem;">
+          <label for="sr-summary" style="color:var(--muted);">Status Summary</label>
+          <input id="sr-summary" name="summary" type="text" required placeholder="What happened?"
+                 style="padding:.5rem; border:1px solid var(--border); border-radius:8px; background:var(--panel); color:var(--text);" />
+        </div>
+        <div style="display:flex; flex-direction:column; gap:.25rem;">
+          <label for="sr-risks" style="color:var(--muted);">Risks / Issues</label>
+          <input id="sr-risks" name="risks" type="text" placeholder="Any blockers?"
+                 style="padding:.5rem; border:1px solid var(--border); border-radius:8px; background:var(--panel); color:var(--text);" />
+        </div>
+        <div style="display:flex; flex-direction:column; gap:.25rem;">
+          <label for="sr-next" style="color:var(--muted);">Next Steps</label>
+          <input id="sr-next" name="next" type="text" required placeholder="What’s next?"
+                 style="padding:.5rem; border:1px solid var(--border); border-radius:8px; background:var(--panel); color:var(--text);" />
+        </div>
+        <button type="submit"
+                style="grid-column: 1 / -1; justify-self:start; padding:.55rem .9rem; border:1px solid var(--border); border-radius:10px; background:var(--brand); color:#fff; cursor:pointer;">
+          + Add Update
+        </button>
+      </form>
+
+      <!-- Status Table -->
+      <table role="table" aria-label="Project Status Reports"
+             style="width:100%; border-collapse:collapse; border:1px solid var(--border); border-radius:12px; overflow:hidden;">
         <thead style="background:var(--panel);">
           <tr>
             <th scope="col" style="text-align:left; padding:.6rem; border-bottom:1px solid var(--border);">Date</th>
             <th scope="col" style="text-align:left; padding:.6rem; border-bottom:1px solid var(--border);">Status Summary</th>
-            <th scope="col" style="text-align:left; padding:.6rem; border-bottom:1px solid var(--border);">Risks / Issues</th>
+            <th scope="col" style="text-align:left; padding:.6rem; border-bottom:1px solid var(--border);">Risks/Issues</th>
             <th scope="col" style="text-align:left; padding:.6rem; border-bottom:1px solid var(--border);">Next Steps</th>
           </tr>
         </thead>
-        <tbody> 
-
-        <tr>
+        <tbody id="status-tbody">
+          <!-- Existing example rows (optional). You can remove them if you prefer a clean start. -->
+          <tr>
             <td style="padding:.6rem; border-bottom:1px solid var(--border);">2025-10-12</td>
             <td style="padding:.6rem; border-bottom:1px solid var(--border);">Charter finalized; stakeholder map completed.</td>
             <td style="padding:.6rem; border-bottom:1px solid var(--border);">None identified.</td>
@@ -578,10 +608,102 @@
           </tr>
         </tbody>
       </table>
-   </div>
+
+      <p class="label" style="color:var(--muted); margin-top:.5rem;">
+        Tip: Add one row per week or milestone. Keep summaries concise (2–3 sentences).
+      </p>
+    </div>
   </details>
 </section>
 
+<script>
+(function() {
+  // Chevron toggle to match your site's style
+  const ds = document.querySelector('#status-reports details.section');
+  if (ds) {
+    const chev = ds.querySelector('.chev');
+    const set = () => chev && (chev.textContent = ds.open ? '▼' : '▶');
+    set();
+    ds.addEventListener('toggle', set);
+  }
+
+  // Local storage helpers
+  const KEY = 'statusReportsRowsV1';
+  const tbody = document.getElementById('status-tbody');
+  const form = document.getElementById('status-form');
+
+  function saveRows() {
+    const rows = Array.from(tbody.querySelectorAll('tr')).map(tr => {
+      const cells = tr.querySelectorAll('td');
+      return {
+        date: cells[0]?.textContent.trim() || '',
+        summary: cells[1]?.textContent.trim() || '',
+        risks: cells[2]?.textContent.trim() || '',
+        next: cells[3]?.textContent.trim() || ''
+      };
+    });
+    try { localStorage.setItem(KEY, JSON.stringify(rows)); } catch(e) {}
+  }
+
+  function renderRow({date, summary, risks, next}) {
+    const tr = document.createElement('tr');
+    const styles = 'padding:.6rem; border-bottom:1px solid var(--border);';
+    tr.innerHTML = `
+      <td style="${styles}"></td>
+      <td style="${styles}"></td>
+      <td style="${styles}"></td>
+      <td style="${styles}"></td>
+    `;
+    const tds = tr.querySelectorAll('td');
+    tds[0].textContent = date;
+    tds[1].textContent = summary;
+    tds[2].textContent = risks;
+    tds[3].textContent = next;
+    tbody.appendChild(tr);
+  }
+
+  function loadRows() {
+    try {
+      const json = localStorage.getItem(KEY);
+      if (!json) return;
+      const rows = JSON.parse(json);
+      tbody.innerHTML = ''; // clear any starter rows if stored data exists
+      rows.forEach(renderRow);
+    } catch(e) {}
+  }
+
+  // Initialize date to today for convenience
+  const today = new Date().toISOString().slice(0,10);
+  const dateInput = document.getElementById('sr-date');
+  if (dateInput && !dateInput.value) dateInput.value = today;
+
+  // Handle submit: append row + persist
+  form?.addEventListener('submit', function(ev) {
+    ev.preventDefault();
+    const data = {
+      date: (document.getElementById('sr-date').value || '').trim(),
+      summary: (document.getElementById('sr-summary').value || '').trim(),
+      risks: (document.getElementById('sr-risks').value || '').trim(),
+      next: (document.getElementById('sr-next').value || '').trim()
+    };
+    if (!data.date || !data.summary || !data.next) {
+      alert('Please fill Date, Status Summary, and Next Steps.');
+      return;
+    }
+    renderRow(data);
+    saveRows();
+    form.reset();
+    if (dateInput) dateInput.value = today;
+  });
+
+  // Persist table on any change (e.g., if you edit cells manually later)
+  tbody?.addEventListener('input', saveRows);
+
+  // Load saved rows on page load
+  loadRows();
+})();
+</script>
+      
 <script>
 function toggleStatusReports() {
   const content = document.getElementById('status-content');
