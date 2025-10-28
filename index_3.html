@@ -2,7 +2,7 @@
 <html lang="en"><head>    
     <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title> Project Charter</title>
+    <title> Project Charter</title>
   <style>
     :root{
       --bg: #0a0c10;
@@ -185,6 +185,160 @@
         </div>
       </div>
 
+
+
+
+<!-- NEW SECTION: Status Reports placed at the TOP of the Charter (no numbering, integrated style) -->
+<section id="status-reports-top" class="section charter-section">
+  <h2>Status Reports</h2>
+  <p class="muted">Submit project updates here, including milestones and progress. Attach a PDF if needed.</p>
+
+  <details id="statusAccordion" class="accordion">
+    <summary><span class="toggle-icon" aria-hidden="true">＋</span> <strong>Add Update</strong></summary>
+
+    <form id="statusForm" method="post" enctype="multipart/form-data">
+      <table class="status-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Date</th>
+            <th>Milestone / Task</th>
+            <th>Status</th>
+            <th>Comments</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="statusTableBody">
+          <tr>
+            <td class="row-index">1</td>
+            <td><input type="date" name="date_1" required></td>
+            <td><input type="text" name="milestone_1" placeholder="Describe milestone or task" required></td>
+            <td>
+              <select name="status_1" required>
+                <option value="">Select...</option>
+                <option value="Not Started">Not Started</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Completed">Completed</option>
+              </select>
+            </td>
+            <td><input type="text" name="comments_1" placeholder="Additional notes"></td>
+            <td><button type="button" class="remove-row" aria-label="Remove row">Remove</button></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="form-row">
+        <button type="button" id="addRowBtn">+ Add Update</button>
+      </div>
+
+      <div class="form-row">
+        <label for="pdfUpload"><strong>Attach PDF</strong> <span class="muted">(PDF only, max 10 MB)</span></label>
+        <input id="pdfUpload" name="pdfUpload" type="file" accept="application/pdf" />
+      </div>
+
+      <div class="form-row">
+        <button type="submit">Submit</button>
+      </div>
+    </form>
+  </details>
+</section>
+
+<!-- Existing charter sections follow below -->
+
+<style>
+  .charter-section { max-width: 1000px; margin: 1.5rem auto; padding: 0 1rem; }
+  .muted { color: #666; font-size: 0.9rem; }
+
+  details.accordion { border: 1px solid #ddd; border-radius: .5rem; background: #fff; margin-top: 1rem; }
+  details.accordion > summary { list-style: none; cursor: pointer; padding: .9rem 1rem; display: flex; align-items: center; gap: .5rem; }
+  details.accordion[open] > summary { border-bottom: 1px solid #eee; }
+  details.accordion summary::-webkit-details-marker { display:none; }
+  .toggle-icon { font-weight: 700; width: 1rem; display:inline-block; text-align:center; }
+
+  .status-table { width: 100%; border-collapse: collapse; margin: 1rem 1rem 0 1rem; }
+  .status-table th, .status-table td { border: 1px solid #ccc; padding: .5rem; text-align: left; }
+  .status-table th { background: #f5f5f5; }
+  .row-index { width: 2.5rem; text-align: center; }
+
+  .form-row { display: flex; flex-direction: column; gap: .5rem; margin: 1rem; }
+  input, select, button { padding: .5rem; border: 1px solid #ccc; border-radius: .5rem; font-size: 1rem; }
+  button { cursor: pointer; border: none; background: #0f62fe; color: #fff; border-radius: .5rem; padding: .75rem 1rem; }
+  button:hover { filter: brightness(.95); }
+  .remove-row { background: #d64545; }
+  .remove-row:hover { background: #b93a3a; }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const details = document.getElementById('statusAccordion');
+    const icon = details.querySelector('.toggle-icon');
+    const form = document.getElementById('statusForm');
+    const fileInput = document.getElementById('pdfUpload');
+    const tableBody = document.getElementById('statusTableBody');
+    const addRowBtn = document.getElementById('addRowBtn');
+
+    function updateIcon() { icon.textContent = details.open ? '−' : '＋'; }
+    details.addEventListener('toggle', updateIcon);
+    updateIcon();
+
+    function reindexRows() {
+      [...tableBody.rows].forEach((row, idx) => {
+        row.querySelector('.row-index').textContent = idx + 1;
+        row.querySelectorAll('input, select').forEach(input => {
+          const base = input.name.replace(/_(\d+)$/, '');
+          input.name = `${base}_${idx + 1}`;
+        });
+      });
+    }
+
+    addRowBtn.addEventListener('click', function () {
+      const rowCount = tableBody.rows.length + 1;
+      const newRow = document.createElement('tr');
+      newRow.innerHTML = `
+        <td class="row-index">${rowCount}</td>
+        <td><input type="date" name="date_${rowCount}" required></td>
+        <td><input type="text" name="milestone_${rowCount}" placeholder="Describe milestone or task" required></td>
+        <td>
+          <select name="status_${rowCount}" required>
+            <option value="">Select...</option>
+            <option value="Not Started">Not Started</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>
+          </select>
+        </td>
+        <td><input type="text" name="comments_${rowCount}" placeholder="Additional notes"></td>
+        <td><button type="button" class="remove-row" aria-label="Remove row">Remove</button></td>`;
+      tableBody.appendChild(newRow);
+    });
+
+    tableBody.addEventListener('click', (e) => {
+      if (e.target.classList.contains('remove-row')) {
+        e.target.closest('tr').remove();
+        reindexRows();
+      }
+    });
+
+    form.addEventListener('submit', function (e) {
+      const file = fileInput && fileInput.files[0];
+      if (file) {
+        const isPdf = file.type === 'application/pdf' || (file.name && file.name.toLowerCase().endsWith('.pdf'));
+        if (!isPdf) {
+          alert('The attached file must be a PDF (.pdf).');
+          e.preventDefault();
+          return;
+        }
+        const maxBytes = 10 * 1024 * 1024; // 10 MB
+        if (file.size > maxBytes) {
+          alert('The PDF is larger than 10 MB. Please upload a smaller file.');
+          e.preventDefault();
+          return;
+        }
+      }
+    });
+  });
+</script>
+        
+        
       <!-- 1. Project Title & Description -->
       <details class="section" open="">
         <summary><span class="chev">▶</span><span class="sicon">📝</span><span id="s1">1. Project Title &amp; Description</span></summary>
@@ -527,155 +681,6 @@
       </details>
       </section>
 
-
-<!-- Section 12: Status Reports (Charter format) BELOW Project Tools, Formspree references removed -->
-<section id="status-reports" class="section charter-section">
-  <h2><span class="section-number">12.</span> Status Reports</h2>
-  <p class="muted">Add project updates using the dropdown below. Attach a PDF if needed.</p>
-
-  <details id="statusAccordion" class="accordion">
-    <summary><span class="toggle-icon" aria-hidden="true">＋</span> <strong>Add Update</strong></summary>
-
-    <form id="statusForm" method="post" enctype="multipart/form-data">
-      <table class="status-table">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Date</th>
-            <th>Milestone / Task</th>
-            <th>Status</th>
-            <th>Comments</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody id="statusTableBody">
-          <tr>
-            <td class="row-index">1</td>
-            <td><input type="date" name="date_1" required></td>
-            <td><input type="text" name="milestone_1" placeholder="Describe milestone or task" required></td>
-            <td>
-              <select name="status_1" required>
-                <option value="">Select...</option>
-                <option value="Not Started">Not Started</option>
-                <option value="In Progress">In Progress</option>
-                <option value="Completed">Completed</option>
-              </select>
-            </td>
-            <td><input type="text" name="comments_1" placeholder="Additional notes"></td>
-            <td><button type="button" class="remove-row" aria-label="Remove row">Remove</button></td>
-          </tr>
-        </tbody>
-      </table>
-
-      <div class="form-row">
-        <button type="button" id="addRowBtn">+ Add Update</button>
-      </div>
-
-      <div class="form-row">
-        <label for="pdfUpload"><strong>Attach PDF</strong> <span class="muted">(PDF only, max 10 MB)</span></label>
-        <input id="pdfUpload" name="pdfUpload" type="file" accept="application/pdf" />
-      </div>
-
-      <div class="form-row">
-        <button type="submit">Submit</button>
-      </div>
-    </form>
-  </details>
-</section>
-
-<style>
-  .charter-section { max-width: 1000px; margin: 1.5rem auto; padding: 0 1rem; }
-  .section-number { opacity: .65; margin-right: .35rem; }
-  .muted { color: #666; font-size: 0.9rem; }
-
-  details.accordion { border: 1px solid #ddd; border-radius: .5rem; background: #fff; margin-top: 1rem; }
-  details.accordion > summary { list-style: none; cursor: pointer; padding: .9rem 1rem; display: flex; align-items: center; gap: .5rem; }
-  details.accordion[open] > summary { border-bottom: 1px solid #eee; }
-  details.accordion summary::-webkit-details-marker { display:none; }
-  .toggle-icon { font-weight: 700; width: 1rem; display:inline-block; text-align:center; }
-
-  .status-table { width: 100%; border-collapse: collapse; margin: 1rem 1rem 0 1rem; }
-  .status-table th, .status-table td { border: 1px solid #ccc; padding: .5rem; text-align: left; }
-  .status-table th { background: #f5f5f5; }
-  .row-index { width: 2.5rem; text-align: center; }
-
-  .form-row { display: flex; flex-direction: column; gap: .5rem; margin: 1rem; }
-  input, select, button { padding: .5rem; border: 1px solid #ccc; border-radius: .5rem; font-size: 1rem; }
-  button { cursor: pointer; border: none; background: #0f62fe; color: #fff; border-radius: .5rem; padding: .75rem 1rem; }
-  button:hover { filter: brightness(.95); }
-  .remove-row { background: #d64545; }
-  .remove-row:hover { background: #b93a3a; }
-</style>
-
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const details = document.getElementById('statusAccordion');
-    const icon = details.querySelector('.toggle-icon');
-    const form = document.getElementById('statusForm');
-    const fileInput = document.getElementById('pdfUpload');
-    const tableBody = document.getElementById('statusTableBody');
-    const addRowBtn = document.getElementById('addRowBtn');
-
-    function updateIcon() { icon.textContent = details.open ? '−' : '＋'; }
-    details.addEventListener('toggle', updateIcon);
-    updateIcon();
-
-    function reindexRows() {
-      [...tableBody.rows].forEach((row, idx) => {
-        row.querySelector('.row-index').textContent = idx + 1;
-        row.querySelectorAll('input, select').forEach(input => {
-          const base = input.name.replace(/_(\d+)$/, '');
-          input.name = `${base}_${idx + 1}`;
-        });
-      });
-    }
-
-    addRowBtn.addEventListener('click', function () {
-      const rowCount = tableBody.rows.length + 1;
-      const newRow = document.createElement('tr');
-      newRow.innerHTML = `
-        <td class="row-index">${rowCount}</td>
-        <td><input type="date" name="date_${rowCount}" required></td>
-        <td><input type="text" name="milestone_${rowCount}" placeholder="Describe milestone or task" required></td>
-        <td>
-          <select name="status_${rowCount}" required>
-            <option value="">Select...</option>
-            <option value="Not Started">Not Started</option>
-            <option value="In Progress">In Progress</option>
-            <option value="Completed">Completed</option>
-          </select>
-        </td>
-        <td><input type="text" name="comments_${rowCount}" placeholder="Additional notes"></td>
-        <td><button type="button" class="remove-row" aria-label="Remove row">Remove</button></td>`;
-      tableBody.appendChild(newRow);
-    });
-
-    tableBody.addEventListener('click', (e) => {
-      if (e.target.classList.contains('remove-row')) {
-        e.target.closest('tr').remove();
-        reindexRows();
-      }
-    });
-
-    form.addEventListener('submit', function (e) {
-      const file = fileInput && fileInput.files[0];
-      if (file) {
-        const isPdf = file.type === 'application/pdf' || (file.name && file.name.toLowerCase().endsWith('.pdf'));
-        if (!isPdf) {
-          alert('The attached file must be a PDF (.pdf).');
-          e.preventDefault();
-          return;
-        }
-        const maxBytes = 10 * 1024 * 1024; // 10 MB
-        if (file.size > maxBytes) {
-          alert('The PDF is larger than 10 MB. Please upload a smaller file.');
-          e.preventDefault();
-          return;
-        }
-      }
-    });
-  });
-</script>
 
 
       <p class="foot">Tip: Use the sidebar to jump between sections. Press <kbd>Ctrl/Cmd + F</kbd> to use built-in browser search, or the search box to filter sections live.</p>
