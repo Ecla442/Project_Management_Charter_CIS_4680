@@ -528,10 +528,14 @@
       </section>
 
 
-<!-- DROP-IN REPLACEMENT for section “12. Status Reports” on index_3.html, now using a TABLE layout instead of a textarea -->
+<!-- DROP-IN REPLACEMENT for section “12. Status Reports” using a DROPDOWN (accordion) like before -->
 <section id="status-reports" class="section">
-<h2><span class="section-number">12.</span> Submit Info &amp; PDF</h2>
-<p class="muted">Enter your update in table form and attach a PDF. This replaces the prior Status Reports table.</p>
+<h2><span class="section-number">12.</span> Status Reports</h2>
+<p class="muted">Click “Add Update” to open the input area. This preserves the previous dropdown-style interaction.</p>
+
+
+<details id="updateDropdown" class="accordion">
+<summary><span class="toggle-icon" aria-hidden="true">＋</span> <strong>Add Update</strong></summary>
 
 
 <form id="infoForm" method="post" enctype="multipart/form-data" action="">
@@ -541,14 +545,17 @@
 <table id="infoTable" class="status-table">
 <thead>
 <tr>
+<th>#</th>
 <th>Date</th>
 <th>Milestone / Task</th>
 <th>Status</th>
 <th>Comments</th>
+<th></th>
 </tr>
 </thead>
 <tbody>
 <tr>
+<td class="row-index">1</td>
 <td><input type="date" name="date_1" required></td>
 <td><input type="text" name="milestone_1" placeholder="Describe milestone or task" required></td>
 <td>
@@ -560,6 +567,7 @@
 </select>
 </td>
 <td><input type="text" name="comments_1" placeholder="Additional notes"></td>
+<td><button type="button" class="remove-row" aria-label="Remove row">Remove</button></td>
 </tr>
 </tbody>
 </table>
@@ -592,108 +600,38 @@
 <div class="form-row">
 <button type="submit">Submit</button>
 </div>
+</form>
+</details>
+</section>
 
-<script>
-(function() {
-  // Chevron toggle to match your site's style
-  const ds = document.querySelector('#status-reports details.section');
-  if (ds) {
-    const chev = ds.querySelector('.chev');
-    const set = () => chev && (chev.textContent = ds.open ? '▼' : '▶');
-    set();
-    ds.addEventListener('toggle', set);
-  }
 
-  // Local storage helpers
-  const KEY = 'statusReportsRowsV1';
-  const tbody = document.getElementById('status-tbody');
-  const form = document.getElementById('status-form');
+<style>
+.section { max-width: 1000px; margin: 1.5rem auto; padding: 0 1rem; }
+.section-number { opacity: .65; margin-right: .35rem; }
+.muted { color: #666; font-size: 0.9rem; }
 
-  function saveRows() {
-    const rows = Array.from(tbody.querySelectorAll('tr')).map(tr => {
-      const cells = tr.querySelectorAll('td');
-      return {
-        date: cells[0]?.textContent.trim() || '',
-        summary: cells[1]?.textContent.trim() || '',
-        risks: cells[2]?.textContent.trim() || '',
-        next: cells[3]?.textContent.trim() || ''
-      };
-    });
-    try { localStorage.setItem(KEY, JSON.stringify(rows)); } catch(e) {}
-  }
 
-  function renderRow({date, summary, risks, next}) {
-    const tr = document.createElement('tr');
-    const styles = 'padding:.6rem; border-bottom:1px solid var(--border);';
-    tr.innerHTML = `
-      <td style="${styles}"></td>
-      <td style="${styles}"></td>
-      <td style="${styles}"></td>
-      <td style="${styles}"></td>
-    `;
-    const tds = tr.querySelectorAll('td');
-    tds[0].textContent = date;
-    tds[1].textContent = summary;
-    tds[2].textContent = risks;
-    tds[3].textContent = next;
-    tbody.appendChild(tr);
-  }
+/* Accordion */
+details.accordion { border: 1px solid #ddd; border-radius: .5rem; background: #fff; }
+details.accordion > summary { list-style: none; cursor: pointer; padding: .9rem 1rem; display: flex; align-items: center; gap: .5rem; }
+details.accordion[open] > summary { border-bottom: 1px solid #eee; }
+details.accordion summary::-webkit-details-marker { display:none; }
+.toggle-icon { font-weight: 700; width: 1rem; display:inline-block; text-align:center; }
 
-  function loadRows() {
-    try {
-      const json = localStorage.getItem(KEY);
-      if (!json) return;
-      const rows = JSON.parse(json);
-      tbody.innerHTML = ''; // clear any starter rows if stored data exists
-      rows.forEach(renderRow);
-    } catch(e) {}
-  }
 
-  // Initialize date to today for convenience
-  const today = new Date().toISOString().slice(0,10);
-  const dateInput = document.getElementById('sr-date');
-  if (dateInput && !dateInput.value) dateInput.value = today;
+/* Table */
+.status-table { width: 100%; border-collapse: collapse; margin: 1rem 1rem 0 1rem; }
+.status-table th, .status-table td { border: 1px solid #ccc; padding: .5rem; text-align: left; }
+.status-table th { background: #f5f5f5; }
+.row-index { width: 2.5rem; text-align: center; }
 
-  // Handle submit: append row + persist
-  form?.addEventListener('submit', function(ev) {
-    ev.preventDefault();
-    const data = {
-      date: (document.getElementById('sr-date').value || '').trim(),
-      summary: (document.getElementById('sr-summary').value || '').trim(),
-      risks: (document.getElementById('sr-risks').value || '').trim(),
-      next: (document.getElementById('sr-next').value || '').trim()
-    };
-    if (!data.date || !data.summary || !data.next) {
-      alert('Please fill Date, Status Summary, and Next Steps.');
-      return;
-    }
-    renderRow(data);
-    saveRows();
-    form.reset();
-    if (dateInput) dateInput.value = today;
-  });
 
-  // Persist table on any change (e.g., if you edit cells manually later)
-  tbody?.addEventListener('input', saveRows);
-
-  // Load saved rows on page load
-  loadRows();
-})();
-</script>
-      
-<script>
-function toggleStatusReports() {
-  const content = document.getElementById('status-content');
-  const header = document.querySelector('#status-reports h2');
-  if (content.style.display === 'none') {
-    content.style.display = 'block';
-    header.textContent = '▼ Status Reports';
-  } else {
-    content.style.display = 'none';
-    header.textContent = '▶ Status Reports';
-  }
-}
-</script>
+/* Form controls */
+.form-row { display: flex; flex-direction: column; gap: .5rem; margin: 1rem; }
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 1rem; margin: 0 1rem; }
+input, select, button { padding: .5rem; border: 1px solid #ccc; border-radius: .5rem; font-size: 1rem; }
+button { cursor: pointer; border: none; background: #0f62fe; color: #fff; border-radius: .5rem; padding: .75rem 1rem; }
+button:hover { filter: brightness(.95); }
 
 
       <p class="foot">Tip: Use the sidebar to jump between sections. Press <kbd>Ctrl/Cmd + F</kbd> to use built-in browser search, or the search box to filter sections live.</p>
