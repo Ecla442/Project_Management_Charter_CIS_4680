@@ -528,64 +528,84 @@
       </section>
 
 
-<section id="status-reports">
-  <details class="section" open="">
-    <summary>
-      <span class="chev">▼</span>
-      <span class="sicon">🗓️</span>
-      <span id="s6">12. Status Reports</span>
-    </summary>
+<!-- DROP-IN REPLACEMENT for section “12. Status Reports” on index_3.html -->
+<section id="status-reports" class="section">
+<h2><span class="section-number">12.</span> Submit Info &amp; PDF</h2>
+<p class="muted">Share your update and attach a PDF. Replaces the prior Status Reports table.</p>
 
-    <div class="section-body">
-      <p>Track weekly or milestone updates for the project. Use the form to add a new entry.</p>
 
-      <!-- Add New Update Form -->
-      <form id="status-form" style="display:grid; gap:.6rem; grid-template-columns: 160px 1fr 1fr 1fr; align-items:end; margin: 0 0 1rem 0;">
-        <div style="display:flex; flex-direction:column; gap:.25rem;">
-          <label for="sr-date" style="color:var(--muted);">Date</label>
-          <input id="sr-date" name="date" type="date" required="" style="padding:.5rem; border:1px solid var(--border); border-radius:8px; background:var(--panel); color:var(--text);">
-        </div>
-        <div style="display:flex; flex-direction:column; gap:.25rem;">
-          <label for="sr-summary" style="color:var(--muted);">Status Summary</label>
-          <input id="sr-summary" name="summary" type="text" required="" placeholder="What happened?" style="padding:.5rem; border:1px solid var(--border); border-radius:8px; background:var(--panel); color:var(--text);">
-        </div>
-        <div style="display:flex; flex-direction:column; gap:.25rem;">
-          <label for="sr-risks" style="color:var(--muted);">Risks/Issues</label>
-          <input id="sr-risks" name="risks" type="text" placeholder="Any blockers?" style="padding:.5rem; border:1px solid var(--border); border-radius:8px; background:var(--panel); color:var(--text);">
-        </div>
-        <div style="display:flex; flex-direction:column; gap:.25rem;">
-          <label for="sr-next" style="color:var(--muted);">Next Steps</label>
-          <input id="sr-next" name="next" type="text" required="" placeholder="What’s next?" style="padding:.5rem; border:1px solid var(--border); border-radius:8px; background:var(--panel); color:var(--text);">
-        </div>
-        <button type="submit" style="grid-column: 1 / -1; justify-self:start; padding:.55rem .9rem; border:1px solid var(--border); border-radius:10px; background:var(--brand); color:#fff; cursor:pointer;">
-          + Add Update
-        </button>
-      </form>
+<form id="infoForm" method="post" enctype="multipart/form-data" action="">
+<!-- If you hook up Formspree or another service, put its endpoint in the action attribute above. -->
 
-      <!-- Status Table -->
-      <table role="table" aria-label="Project Status Reports" style="width:100%; border-collapse:collapse; border:1px solid var(--border); border-radius:12px; overflow:hidden;">
-        <thead style="background:var(--panel);">
-          <tr>
-            <th scope="col" style="text-align:left; padding:.6rem; border-bottom:1px solid var(--border);">Date</th>
-            <th scope="col" style="text-align:left; padding:.6rem; border-bottom:1px solid var(--border);">Status Summary</th>
-            <th scope="col" style="text-align:left; padding:.6rem; border-bottom:1px solid var(--border);">Risks/Issues</th>
-            <th scope="col" style="text-align:left; padding:.6rem; border-bottom:1px solid var(--border);">Next Steps</th>
-          </tr>
-        </thead>
-        <tbody id="status-tbody"><tr>
-      <td style="padding:.6rem; border-bottom:1px solid var(--border);">2025-10-13</td>
-      <td style="padding:.6rem; border-bottom:1px solid var(--border);">I have bought the website host, and my domain is up. I need to now go ahead, and add details to my site.</td>
-      <td style="padding:.6rem; border-bottom:1px solid var(--border);">No blockers currently.</td>
-      <td style="padding:.6rem; border-bottom:1px solid var(--border);">To edit the site and to add certain sections to it. (In Progress)</td>
-    </tr></tbody>
-      </table>
 
-      <p class="label" style="color:var(--muted); margin-top:.5rem;">
-        Tip: Add one row per week or milestone. Keep summaries concise (2–3 sentences).
-      </p>
-    </div>
-  </details>
+<div class="form-row">
+<label for="userInfo"><strong>Your Information</strong></label>
+<textarea id="userInfo" name="userInfo" placeholder="Enter details you'd like to include…" rows="6" required></textarea>
+</div>
+
+
+<div class="form-row">
+<label for="pdfUpload"><strong>Attach PDF</strong> <span class="muted">(PDF only, max 10 MB)</span></label>
+<input id="pdfUpload" name="pdfUpload" type="file" accept="application/pdf" required />
+<small id="fileHelp" class="muted">Only .pdf files are accepted.</small>
+</div>
+
+<p class="muted" style="margin-top:1rem">Tip: On GitHub Pages you need a third‑party service (Formspree, Basin, Google Forms, or a custom backend) to receive file uploads.</p>
 </section>
+
+<!-- Minimal styles that play nice with the existing page. Remove if redundant. -->
+<style>
+.section { max-width: 1000px; margin: 1.5rem auto; padding: 0 1rem; }
+.section-number { opacity: .65; margin-right: .35rem; }
+.form-row { display: flex; flex-direction: column; gap: .5rem; margin: 1rem 0; }
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 1rem; }
+label { font-size: 0.95rem; }
+.muted { color: #666; font-size: 0.9rem; }
+textarea, input[type="file"], input[type="text"], input[type="email"], button {
+padding: .75rem; border: 1px solid #ccc; border-radius: .5rem; font-size: 1rem; width: 100%;
+}
+button { cursor: pointer; border: none; background: #0f62fe; color: #fff; border-radius: .5rem; padding: .85rem 1.1rem; }
+button:hover { filter: brightness(.95); }
+</style>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+const form = document.getElementById('infoForm');
+const fileInput = document.getElementById('pdfUpload');
+
+
+form.addEventListener('submit', function (e) {
+const file = fileInput.files[0];
+if (!file) {
+alert('Please attach a PDF.');
+e.preventDefault();
+return;
+}
+const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+if (!isPdf) {
+alert('The attached file must be a PDF (.pdf).');
+e.preventDefault();
+return;
+}
+const maxBytes = 10 * 1024 * 1024; // 10 MB
+if (file.size > maxBytes) {
+alert('The PDF is larger than 10 MB. Please upload a smaller file.');
+e.preventDefault();
+return;
+}
+
+
+// Example: Submit with Formspree (uncomment & replace YOUR_ENDPOINT)
+// e.preventDefault();
+// const data = new FormData(form);
+// fetch('https://formspree.io/f/YOUR_ENDPOINT', { method: 'POST', body: data })
+// .then(r => r.ok ? alert('Submitted!') : Promise.reject(r))
+// .catch(() => alert('There was a problem submitting your form.'));
+});
+});
+</script> 
+
 
 <script>
 (function() {
