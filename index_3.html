@@ -188,7 +188,8 @@
 
 
 
-<!-- NEW SECTION: Status Reports placed at the TOP of the Charter (no numbering, integrated style) -->
+
+      <!-- STATUS REPORTS SECTION WITH LOCALSTORAGE PERSISTENCE -->
 <section id="status-reports-top" class="section charter-section">
   <h2>Status Reports</h2>
   <p class="muted">Submit project updates here, including milestones and progress. Attach a PDF if needed.</p>
@@ -240,32 +241,38 @@
         <button type="submit">Submit</button>
       </div>
     </form>
+
+    <h3 class="feed-title">Recent Updates</h3>
+    <div id="statusFeed" class="feed"></div>
   </details>
 </section>
-
-<!-- Existing charter sections follow below -->
 
 <style>
   .charter-section { max-width: 1000px; margin: 1.5rem auto; padding: 0 1rem; }
   .muted { color: #666; font-size: 0.9rem; }
-
   details.accordion { border: 1px solid #ddd; border-radius: .5rem; background: #fff; margin-top: 1rem; }
   details.accordion > summary { list-style: none; cursor: pointer; padding: .9rem 1rem; display: flex; align-items: center; gap: .5rem; }
   details.accordion[open] > summary { border-bottom: 1px solid #eee; }
   details.accordion summary::-webkit-details-marker { display:none; }
   .toggle-icon { font-weight: 700; width: 1rem; display:inline-block; text-align:center; }
-
   .status-table { width: 100%; border-collapse: collapse; margin: 1rem 1rem 0 1rem; }
   .status-table th, .status-table td { border: 1px solid #ccc; padding: .5rem; text-align: left; }
   .status-table th { background: #f5f5f5; }
   .row-index { width: 2.5rem; text-align: center; }
-
   .form-row { display: flex; flex-direction: column; gap: .5rem; margin: 1rem; }
   input, select, button { padding: .5rem; border: 1px solid #ccc; border-radius: .5rem; font-size: 1rem; }
   button { cursor: pointer; border: none; background: #0f62fe; color: #fff; border-radius: .5rem; padding: .75rem 1rem; }
   button:hover { filter: brightness(.95); }
   .remove-row { background: #d64545; }
   .remove-row:hover { background: #b93a3a; }
+  .feed-title { margin: 1rem 1rem 0 1rem; font-size: 1.1rem; }
+  .feed { display: grid; gap: 1rem; margin: 1rem; }
+  .card { border: 1px solid #e5e5e5; border-radius: .75rem; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.03); overflow: hidden; }
+  .card-header { padding: .75rem 1rem; background: #f9fafb; border-bottom: 1px solid #eee; display:flex; justify-content:space-between; align-items:center; }
+  .card-body { padding: 1rem; }
+  .card-actions { display:flex; gap:.5rem; }
+  .btn-link { background: transparent; color: #0f62fe; border: none; cursor: pointer; padding: .25rem .5rem; }
+  .pdf-embed { width: 100%; height: 420px; border: 1px solid #ddd; border-radius: .5rem; }
 </style>
 
 <script>
@@ -276,6 +283,7 @@
     const fileInput = document.getElementById('pdfUpload');
     const tableBody = document.getElementById('statusTableBody');
     const addRowBtn = document.getElementById('addRowBtn');
+    const feed = document.getElementById('statusFeed');
 
     function updateIcon() { icon.textContent = details.open ? '−' : '＋'; }
     details.addEventListener('toggle', updateIcon);
@@ -318,26 +326,108 @@
       }
     });
 
+    // Load persisted updates
+    const saved = JSON.parse(localStorage.getItem('statusFeedData') || '[]');
+    saved.forEach(item => renderCard(item));
+
+    // Handle submit
     form.addEventListener('submit', function (e) {
-      const file = fileInput && fileInput.files[0];
-      if (file) {
-        const isPdf = file.type === 'application/pdf' || (file.name && file.name.toLowerCase().endsWith('.pdf'));
-        if (!isPdf) {
-          alert('The attached file must be a PDF (.pdf).');
-          e.preventDefault();
-          return;
-        }
-        const maxBytes = 10 * 1024 * 1024; // 10 MB
-        if (file.size > maxBytes) {
-          alert('The PDF is larger than 10 MB. Please upload a smaller file.');
-          e.preventDefault();
-          return;
-        }
+      e.preventDefault();
+      const file = fileInput.files[0];
+      if (file && (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf'))) {
+        alert('The attached file must be a PDF (.pdf).');
+        return;
       }
+
+      const rows = [...tableBody.rows].map((tr, idx) => ({
+        index: idx + 1,
+        date: tr.querySelector('input[type="date"]').value,
+        milestone: tr.querySelector('input[name^="milestone_"]').value,
+        status: tr.querySelector('select[name^="status_"]').value,
+        comments: tr.querySelector('input[name^="comments_"]').value
+      }));
+
+      const entry = {
+        id: Date.now(),
+        timestamp: new Date().toLocaleString(),
+        rows,
+        pdfName: file ? file.name : null,
+        pdfUrl: file ? URL.createObjectURL(file) : null
+      };
+
+      renderCard(entry);
+      persistCard(entry);
+
+      form.reset();
+      tableBody.innerHTML = `
+        <tr>
+          <td class="row-index">1</td>
+          <td><input type="date" name="date_1" required></td>
+          <td><input type="text" name="milestone_1" placeholder="Describe milestone or task" required></td>
+          <td>
+            <select name="status_1" required>
+              <option value="">Select...</option>
+              <option value="Not Started">Not Started</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Completed">Completed</option>
+            </select>
+          </td>
+          <td><input type="text" name="comments_1" placeholder="Additional notes"></td>
+          <td><button type="button" class="remove-row" aria-label="Remove row">Remove</button></td>
+        </tr>`;
     });
+
+    function renderCard(entry) {
+      const card = document.createElement('article');
+      card.className = 'card';
+      card.dataset.id = entry.id;
+
+      card.innerHTML = `
+        <div class="card-header">
+          <div><strong>Status Update</strong> <span class="muted">• ${entry.timestamp}</span></div>
+          <div class="card-actions">
+            ${entry.pdfUrl ? `<a class="btn-link" href="${entry.pdfUrl}" download>Download PDF</a>` : ''}
+            <button type="button" class="btn-link remove-card">Remove</button>
+          </div>
+        </div>
+        <div class="card-body">
+          ${entry.rows.length ? `
+          <table class="status-table">
+            <thead><tr><th>#</th><th>Date</th><th>Milestone / Task</th><th>Status</th><th>Comments</th></tr></thead>
+            <tbody>
+              ${entry.rows.map(r => `<tr>
+                <td>${r.index}</td><td>${r.date || ''}</td><td>${r.milestone || ''}</td><td>${r.status || ''}</td><td>${r.comments || ''}</td>
+              </tr>`).join('')}
+            </tbody>
+          </table>` : '<p class="muted">(No table rows provided.)</p>'}
+          ${entry.pdfUrl ? `<div style="margin-top:1rem">
+            <object class="pdf-embed" data="${entry.pdfUrl}" type="application/pdf">
+              <p>PDF preview unavailable. <a href="${entry.pdfUrl}" target="_blank">Open PDF</a></p>
+            </object>
+          </div>` : ''}
+        </div>`;
+
+      card.querySelector('.remove-card').addEventListener('click', () => {
+        removeCard(entry.id);
+        card.remove();
+      });
+
+      feed.prepend(card);
+    }
+
+    function persistCard(entry) {
+      const data = JSON.parse(localStorage.getItem('statusFeedData') || '[]');
+      data.push(entry);
+      localStorage.setItem('statusFeedData', JSON.stringify(data));
+    }
+
+    function removeCard(id) {
+      const data = JSON.parse(localStorage.getItem('statusFeedData') || '[]').filter(item => item.id !== id);
+      localStorage.setItem('statusFeedData', JSON.stringify(data));
+    }
   });
 </script>
-        
+  
         
       <!-- 1. Project Title & Description -->
       <details class="section" open="">
