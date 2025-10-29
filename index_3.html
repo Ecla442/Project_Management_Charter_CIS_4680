@@ -506,31 +506,7 @@
       <p><strong>Technical Lead</strong> — Internal — To make sure technical requirements are followed. — <em>High Interest, Medium Power</em> — Update and Inform: Progress updates.</p>
       <p><strong>IT Systems Admin</strong> — Internal — Make sure technical requirements are being followed. — <em>Medium Power, High Interest</em> — Monitor Progress: Technical requirements, project progress, etc.</p>
       <p><strong>Web Design Team</strong> — Internal — To make sure technical requirements are followed regarding webpage. — <em>High Interest, Low/Medium Power</em> — Monitor Progress: Check updates on webpages, daily progress meetings, etc.</p>
-    </div>
 
-    <div class="stakeholder-grid">
-      <h4 id="power-interest-grid">Power–Interest Grid (Visualization)</h4>
-
-
-
-<style>
-  .stakeholder-layout {
-    display: grid;
-    gap: 1.25rem;
-  }
-  /* Side-by-side on wider screens */
-  @media (min-width: 900px) {
-    .stakeholder-layout {
-      grid-template-columns: 1.2fr 1fr;
-      align-items: start;
-    }
-  }
-  .stakeholder-register p { margin: 0.35rem 0; }
-  .stakeholder-grid h4 { margin-top: 0.25rem; }
-  .stakeholder-grid h5 { margin: 0.75rem 0 0.25rem; }
-  .stakeholder-grid ul { margin: 0 0 0.5rem 1rem; }
-  .sub-link { font-size: 0.95em; display: inline-block; margin-left: 1rem; }
-</style>
 
       <!-- Use your existing grid content, moved here -->
       <h5>Inform and Update</h5>
@@ -566,7 +542,45 @@
 </section>
         
 
+ <section id="power-interest-grid"> 
+      <!-- 5a. Project Interest Grid) -->
+      <details class="section">
+        <summary><span class="chev">▶</span><span class="sicon">🗺️</span><span id="s5a">5a. Power Interest Grid</span></summary>
+        <div class="section-body">
+          <p>This diagram places stakeholders on a Power × Interest grid to complement the table above.</p>
+          <svg viewBox="0 0 680 420" width="100%" height="auto" role="img" aria-label="Stakeholder Power-Interest Map" style="border:1px solid var(--border); border-radius:12px; background:var(--panel)">
+            <defs>
+              <style>
+                .axis{ fill:none; stroke:var(--border); stroke-width:2 }
+                .gridline{ stroke:var(--border); stroke-dasharray:4 4 }
+                .label{ fill: var(--muted); font: 12px system-ui }
+                .pt text{ fill: var(--text); font: 12px system-ui }
+              </style>
+            </defs>
+            <line x1="60" y1="360" x2="640" y2="360" class="axis"></line>
+            <line x1="60" y1="40" x2="60" y2="360" class="axis"></line>
+            <line x1="350" y1="40" x2="350" y2="360" class="gridline"></line>
+            <line x1="60" y1="200" x2="640" y2="200" class="gridline"></line>
+            <text x="350" y="390" class="label" text-anchor="middle">Power →</text>
+            <text x="20" y="200" class="label" transform="rotate(-90 20 200)">Interest ↑</text>
+            <text x="200" y="70" class="label">High Interest / Low Power</text>
+            <text x="420" y="70" class="label">High Interest / High Power</text>
+            <text x="200" y="320" class="label">Low Interest / Low Power</text>
+            <text x="420" y="320" class="label">Low Interest / High Power</text>
+            <defs><linearGradient id="grad1" x1="0" x2="1"><stop offset="0%" stop-color="var(--brand)"></stop><stop offset="100%" stop-color="var(--brand-2)"></stop></linearGradient></defs>
+            <g class="pt"><circle cx="520" cy="120" r="8" fill="url(#grad1)" stroke="var(--border)"></circle><text x="535" y="125">Project Sponsor</text></g>
+            <g class="pt"><circle cx="280" cy="120" r="8" fill="url(#grad1)" stroke="var(--border)"></circle><text x="295" y="125">Project Mgmt Team</text></g>
+            <g class="pt"><circle cx="320" cy="140" r="8" fill="url(#grad1)" stroke="var(--border)"></circle><text x="335" y="145">Technical Lead</text></g>
+            <g class="pt"><circle cx="260" cy="140" r="8" fill="url(#grad1)" stroke="var(--border)"></circle><text x="275" y="145">IT Systems Admin</text></g>
+            <g class="pt"><circle cx="240" cy="150" r="8" fill="url(#grad1)" stroke="var(--border)"></circle><text x="255" y="155">Web Design Team</text></g>
+          </svg>
+        </div>
+      </details>
+      </section>
 
+
+
+        
       <!-- 6. Deliverables -->
       <details class="section">
         <summary><span class="chev">▶</span><span class="sicon">📦</span><span id="s6">Deliverables</span></summary>
