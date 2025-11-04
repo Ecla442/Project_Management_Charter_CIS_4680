@@ -270,6 +270,7 @@
   .card-actions { display:flex; gap:.5rem; }
   .btn-link { background: transparent; color: #0f62fe; border: none; cursor: pointer; padding: .25rem .5rem; }
   .pdf-embed { width: 100%; height: 420px; border: 1px solid #ddd; border-radius: .5rem; }
+  .pdf-canvas { width: 100%; height: auto; border: 1px solid #ddd; border-radius: .5rem; }
 </style>
 
 <script>
@@ -426,63 +427,85 @@
 </script>
 
 <script>
-// IndexedDB persistence layer added without modifying existing code
-// It intercepts form submit (capture phase) to handle saving & rendering from IndexedDB
+// IndexedDB persistence layer with robust PDF rendering (PDF.js fallback)
 (function(){
-  const DB_NAME='statusReportsDB', STORE='updates', VER=1;
+  const DB_NAME='statusReportsDB', STORE='updates', VER=2; // bump version for new fields
   function openDB(){return new Promise((res,rej)=>{const r=indexedDB.open(DB_NAME,VER);r.onupgradeneeded=e=>{const db=e.target.result; if(!db.objectStoreNames.contains(STORE)){db.createObjectStore(STORE,{keyPath:'id'});} }; r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error);});}
-  async function getAll(){const db=await openDB();return new Promise((res,rej)=>{const tx=db.transaction(STORE,'readonly');const os=tx.objectStore(STORE);const req=os.getAll();req.onsuccess=()=>res(req.result||[]);req.onerror=()=>rej(req.error);});}
+  async function getAll(){const db=await openDB();return new Promise((res,rej)=>{const tx=db.transaction(STORE,'readonly');const req=tx.objectStore(STORE).getAll();req.onsuccess=()=>res(req.result||[]);req.onerror=()=>rej(req.error);});}
   async function put(entry){const db=await openDB();return new Promise((res,rej)=>{const tx=db.transaction(STORE,'readwrite');tx.objectStore(STORE).put(entry);tx.oncomplete=res;tx.onerror=()=>rej(tx.error);});}
   async function del(id){const db=await openDB();return new Promise((res,rej)=>{const tx=db.transaction(STORE,'readwrite');tx.objectStore(STORE).delete(id);tx.oncomplete=res;tx.onerror=()=>rej(tx.error);});}
 
-  function objUrl(blob){
-      try {
-        if (!blob) return null;
-        // Some browsers persist Blobs without the type; enforce application/pdf
-        const typed = (!blob.type || blob.type === '') ? new Blob([blob], { type: 'application/pdf' }) : blob;
-        return URL.createObjectURL(typed);
-      } catch { return null; }
-    }catch{return null;}}
+  function blobFrom(entry){
+    // Prefer ArrayBuffer if present (most robust across browsers)
+    if (entry.pdfArrayBuffer) return new Blob([new Uint8Array(entry.pdfArrayBuffer)], {type:'application/pdf'});
+    if (entry.pdfBlob) return (!entry.pdfBlob.type? new Blob([entry.pdfBlob],{type:'application/pdf'}) : entry.pdfBlob);
+    return null;
+  }
+  function objUrlFrom(entry){try{const b=blobFrom(entry);return b?URL.createObjectURL(b):null;}catch{return null;}}
+
+  // Lazy-load PDF.js if needed
+  function ensurePdfJs(){
+    return new Promise((resolve,reject)=>{
+      if (window.pdfjsLib) return resolve(window.pdfjsLib);
+      const s=document.createElement('script');
+      s.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+      s.onload=()=>{try{pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'; resolve(window.pdfjsLib);}catch(e){reject(e)}};
+      s.onerror=()=>reject(new Error('Failed to load PDF.js'));
+      document.head.appendChild(s);
+    });
+  }
+
+  async function renderPdfCanvas(container, entry){
+    try{
+      const lib=await ensurePdfJs();
+      const data = entry.pdfArrayBuffer ? entry.pdfArrayBuffer : (await blobFrom(entry).arrayBuffer());
+      const pdf = await lib.getDocument({data}).promise;
+      const page = await pdf.getPage(1);
+      const viewport = page.getViewport({scale:1.2});
+      const canvas = document.createElement('canvas');
+      canvas.className='pdf-canvas';
+      const ctx = canvas.getContext('2d');
+      canvas.width = viewport.width; canvas.height = viewport.height;
+      container.innerHTML=''; container.appendChild(canvas);
+      await page.render({canvasContext:ctx, viewport}).promise;
+    }catch(e){
+      container.innerHTML = '<p class="muted">PDF preview unavailable. Use Open or Download.</p>';
+      console.warn('PDF.js render failed:', e);
+    }
+  }
+
   function render(feed, entry){
-      // Support legacy entries that may have a stored URL instead of a Blob
-      const pdfUrl = entry.pdfBlob ? objUrl(entry.pdfBlob) : (entry.pdfUrl || null);
-      const card=document.createElement('article');card.className='card';card.dataset.id=entry.id;
-      const headerHtml = `
-        <div class="card-header">
-          <div><strong>Status Update</strong> <span class="muted">• ${entry.timestamp}</span></div>
-          <div class="card-actions">
-            ${pdfUrl?`<a class="btn-link" href="${pdfUrl}" target="_blank" rel="noopener">Open PDF</a>`:''}
-            ${pdfUrl?`<a class="btn-link" href="${pdfUrl}" download>Download</a>`:''}
-            <button type="button" class="btn-link remove-card">Remove</button>
-          </div>
-        </div>`;
-      const rowsHtml = (entry.rows&&entry.rows.length)?`
+    const url = objUrlFrom(entry);
+    const card=document.createElement('article');card.className='card';card.dataset.id=entry.id;
+    card.innerHTML = `
+      <div class="card-header">
+        <div><strong>Status Update</strong> <span class="muted">• ${entry.timestamp}</span></div>
+        <div class="card-actions">
+          ${url?`<a class="btn-link" href="${url}" target="_blank" rel="noopener">Open PDF</a>`:''}
+          ${url?`<a class="btn-link" href="${url}" download>Download</a>`:''}
+          <button type="button" class="btn-link remove-card">Remove</button>
+        </div>
+      </div>
+      <div class="card-body">
+        ${entry.rows&&entry.rows.length?`
         <table class="status-table">
           <thead><tr><th>#</th><th>Date</th><th>Milestone / Task</th><th>Status</th><th>Comments</th></tr></thead>
           <tbody>
             ${entry.rows.map(r=>`<tr><td>${r.index}</td><td>${r.date||''}</td><td>${r.milestone||''}</td><td>${r.status||''}</td><td>${r.comments||''}</td></tr>`).join('')}
           </tbody>
-        </table>`:'<p class="muted">(No table rows provided.)</p>';
+        </table>`:'<p class="muted">(No table rows provided.)</p>'}
+        <div class="pdf-viewer"></div>
+      </div>`;
 
-      const viewerHtml = pdfUrl?`
-        <div style="margin-top:1rem">
-          <!-- Try embed, then object, then iframe as fallbacks -->
-          <embed class="pdf-embed" src="${pdfUrl}" type="application/pdf" />
-          <object class="pdf-embed" data="${pdfUrl}" type="application/pdf">
-            <iframe class="pdf-embed" src="${pdfUrl}"></iframe>
-          </object>
-        </div>`:'';
-
-      card.innerHTML = headerHtml + `<div class="card-body">` + rowsHtml + viewerHtml + `</div>`;
-
-      card.querySelector('.remove-card').addEventListener('click', async () => {
-        await del(entry.id);
-        if (pdfUrl && entry.pdfBlob) URL.revokeObjectURL(pdfUrl);
-        card.remove();
-      });
-
-      feed.prepend(card);
+    // Render PDF inline using PDF.js for best compatibility
+    const viewer = card.querySelector('.pdf-viewer');
+    if (entry.pdfBlob || entry.pdfArrayBuffer) {
+      renderPdfCanvas(viewer, entry);
     }
+
+    card.querySelector('.remove-card').addEventListener('click', async ()=>{ await del(entry.id); if(url) URL.revokeObjectURL(url); card.remove(); });
+    feed.prepend(card);
+  }
 
   document.addEventListener('DOMContentLoaded', async function(){
     const form=document.getElementById('statusForm');
@@ -493,12 +516,14 @@
     // Load existing entries
     try{const all=await getAll(); all.sort((a,b)=>b.id-a.id).forEach(e=>render(feed,e));}catch(e){console.warn('IDB load failed',e)}
 
-    // Capture-phase submit handler to override older listener
     form.addEventListener('submit', async function(ev){
       ev.preventDefault(); ev.stopImmediatePropagation();
       const file=fileInput.files[0];
-      if(file && (file.type!=='application/pdf' && !file.name.toLowerCase().endsWith('.pdf'))){alert('The attached file must be a PDF (.pdf).');return;}
-      if(file && file.size>10*1024*1024){alert('The PDF is larger than 10 MB.');return;}
+      if(file){
+        if(file.type!=='application/pdf' && !file.name.toLowerCase().endsWith('.pdf')){alert('The attached file must be a PDF (.pdf).');return;}
+        if(file.size>10*1024*1024){alert('The PDF is larger than 10 MB.');return;}
+      }
+
       const rows=[...tableBody.rows].map((tr,i)=>({
         index:i+1,
         date:(tr.querySelector('input[type="date"]')||{}).value||'',
@@ -506,9 +531,18 @@
         status:(tr.querySelector('select[name^="status_"]')||{}).value||'',
         comments:(tr.querySelector('input[name^="comments_"]')||{}).value||''
       }));
-      const entry={id:Date.now(), timestamp:new Date().toLocaleString(), rows, pdfName:file?file.name:null, pdfBlob:file||null};
+
+      const entry={
+        id:Date.now(),
+        timestamp:new Date().toLocaleString(),
+        rows,
+        pdfName:file?file.name:null,
+        pdfArrayBuffer:file? await file.arrayBuffer() : null
+      };
+
       try{await put(entry); render(feed,entry);}catch(e){alert('Could not save your update locally.');console.error(e);} 
-      // Reset to one blank row
+
+      // Reset form
       form.reset();
       tableBody.innerHTML=`<tr>
         <td class="row-index">1</td>
@@ -525,7 +559,7 @@
         <td><input type="text" name="comments_1" placeholder="Additional notes"></td>
         <td><button type="button" class="remove-row" aria-label="Remove row">Remove</button></td>
       </tr>`;
-    }, true); // capture=true so we handle before existing listeners
+    }, true);
   });
 })();
 </script>
