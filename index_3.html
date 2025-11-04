@@ -186,11 +186,7 @@
       </div>
 
 
-
-
-
-     
-  <!-- STATUS REPORTS SECTION WITH LOCALSTORAGE PERSISTENCE -->
+<!-- STATUS REPORTS SECTION WITH LOCALSTORAGE PERSISTENCE -->
 <section id="status-reports-top" class="section charter-section">
   <h2>Status Reports</h2>
   <p class="muted">Submit project updates here, including milestones and progress. Attach a PDF if needed.</p>
@@ -439,28 +435,54 @@
   async function put(entry){const db=await openDB();return new Promise((res,rej)=>{const tx=db.transaction(STORE,'readwrite');tx.objectStore(STORE).put(entry);tx.oncomplete=res;tx.onerror=()=>rej(tx.error);});}
   async function del(id){const db=await openDB();return new Promise((res,rej)=>{const tx=db.transaction(STORE,'readwrite');tx.objectStore(STORE).delete(id);tx.oncomplete=res;tx.onerror=()=>rej(tx.error);});}
 
-  function objUrl(blob){try{return blob?URL.createObjectURL(blob):null;}catch{return null;}}
-  function render(feed, entry){const pdfUrl=entry.pdfBlob?objUrl(entry.pdfBlob):null;const card=document.createElement('article');card.className='card';card.dataset.id=entry.id;card.innerHTML=`
-    <div class="card-header">
-      <div><strong>Status Update</strong> <span class="muted">• ${entry.timestamp}</span></div>
-      <div class="card-actions">
-        ${pdfUrl?`<a class="btn-link" href="${pdfUrl}" download>Download PDF</a>`:''}
-        <button type="button" class="btn-link remove-card">Remove</button>
-      </div>
-    </div>
-    <div class="card-body">
-      ${entry.rows&&entry.rows.length?`
-      <table class="status-table">
-        <thead><tr><th>#</th><th>Date</th><th>Milestone / Task</th><th>Status</th><th>Comments</th></tr></thead>
-        <tbody>
-          ${entry.rows.map(r=>`<tr><td>${r.index}</td><td>${r.date||''}</td><td>${r.milestone||''}</td><td>${r.status||''}</td><td>${r.comments||''}</td></tr>`).join('')}
-        </tbody>
-      </table>`:'<p class="muted">(No table rows provided.)</p>'}
-      ${pdfUrl?`<div style="margin-top:1rem"><object class="pdf-embed" data="${pdfUrl}" type="application/pdf"><p>PDF preview unavailable. <a href="${pdfUrl}" target="_blank">Open PDF</a></p></object></div>`:''}
-    </div>`;
-    card.querySelector('.remove-card').addEventListener('click',async()=>{await del(entry.id); if(pdfUrl) URL.revokeObjectURL(pdfUrl); card.remove();});
-    feed.prepend(card);
-  }
+  function objUrl(blob){
+      try {
+        if (!blob) return null;
+        // Some browsers persist Blobs without the type; enforce application/pdf
+        const typed = (!blob.type || blob.type === '') ? new Blob([blob], { type: 'application/pdf' }) : blob;
+        return URL.createObjectURL(typed);
+      } catch { return null; }
+    }catch{return null;}}
+  function render(feed, entry){
+      // Support legacy entries that may have a stored URL instead of a Blob
+      const pdfUrl = entry.pdfBlob ? objUrl(entry.pdfBlob) : (entry.pdfUrl || null);
+      const card=document.createElement('article');card.className='card';card.dataset.id=entry.id;
+      const headerHtml = `
+        <div class="card-header">
+          <div><strong>Status Update</strong> <span class="muted">• ${entry.timestamp}</span></div>
+          <div class="card-actions">
+            ${pdfUrl?`<a class="btn-link" href="${pdfUrl}" target="_blank" rel="noopener">Open PDF</a>`:''}
+            ${pdfUrl?`<a class="btn-link" href="${pdfUrl}" download>Download</a>`:''}
+            <button type="button" class="btn-link remove-card">Remove</button>
+          </div>
+        </div>`;
+      const rowsHtml = (entry.rows&&entry.rows.length)?`
+        <table class="status-table">
+          <thead><tr><th>#</th><th>Date</th><th>Milestone / Task</th><th>Status</th><th>Comments</th></tr></thead>
+          <tbody>
+            ${entry.rows.map(r=>`<tr><td>${r.index}</td><td>${r.date||''}</td><td>${r.milestone||''}</td><td>${r.status||''}</td><td>${r.comments||''}</td></tr>`).join('')}
+          </tbody>
+        </table>`:'<p class="muted">(No table rows provided.)</p>';
+
+      const viewerHtml = pdfUrl?`
+        <div style="margin-top:1rem">
+          <!-- Try embed, then object, then iframe as fallbacks -->
+          <embed class="pdf-embed" src="${pdfUrl}" type="application/pdf" />
+          <object class="pdf-embed" data="${pdfUrl}" type="application/pdf">
+            <iframe class="pdf-embed" src="${pdfUrl}"></iframe>
+          </object>
+        </div>`:'';
+
+      card.innerHTML = headerHtml + `<div class="card-body">` + rowsHtml + viewerHtml + `</div>`;
+
+      card.querySelector('.remove-card').addEventListener('click', async () => {
+        await del(entry.id);
+        if (pdfUrl && entry.pdfBlob) URL.revokeObjectURL(pdfUrl);
+        card.remove();
+      });
+
+      feed.prepend(card);
+    }
 
   document.addEventListener('DOMContentLoaded', async function(){
     const form=document.getElementById('statusForm');
@@ -507,6 +529,7 @@
   });
 })();
 </script>
+
 
         
       <!-- 1. Project Title & Description -->
