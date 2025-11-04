@@ -271,6 +271,9 @@
   .btn-link { background: transparent; color: #0f62fe; border: none; cursor: pointer; padding: .25rem .5rem; }
   .pdf-embed { width: 100%; height: 420px; border: 1px solid #ddd; border-radius: .5rem; }
   .pdf-canvas { width: 100%; height: auto; border: 1px solid #ddd; border-radius: .5rem; }
+  .pdf-canvas { width: 100%; height: auto; border: 1px solid #ddd; border-radius: .5rem; }
+  .pdf-multipage { display: grid; gap: 1rem; }
+  .pdf-page { background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.04); padding: .5rem; border-radius: .5rem; }
 </style>
 
 <script>
@@ -455,20 +458,36 @@
     });
   }
 
-  async function renderPdfCanvas(container, entry){
+  async function renderPdfPages(container, entry){
     try{
-      const lib=await ensurePdfJs();
+      const lib = await ensurePdfJs();
       const data = entry.pdfArrayBuffer ? entry.pdfArrayBuffer : (await blobFrom(entry).arrayBuffer());
       const pdf = await lib.getDocument({data}).promise;
-      const page = await pdf.getPage(1);
-      const viewport = page.getViewport({scale:1.2});
-      const canvas = document.createElement('canvas');
-      canvas.className='pdf-canvas';
-      const ctx = canvas.getContext('2d');
-      canvas.width = viewport.width; canvas.height = viewport.height;
-      container.innerHTML=''; container.appendChild(canvas);
-      await page.render({canvasContext:ctx, viewport}).promise;
-    }catch(e){
+
+      // Clear and set up multipage container
+      container.innerHTML = '';
+      container.classList.add('pdf-multipage');
+
+      // Render each page sequentially to avoid heavy memory spikes
+      for (let p = 1; p <= pdf.numPages; p++) {
+        const page = await pdf.getPage(p);
+        const viewport = page.getViewport({ scale: 1.2 });
+        const wrapper = document.createElement('div');
+        wrapper.className = 'pdf-page';
+        const canvas = document.createElement('canvas');
+        canvas.className = 'pdf-canvas';
+        const ctx = canvas.getContext('2d');
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        wrapper.appendChild(canvas);
+        container.appendChild(wrapper);
+        await page.render({ canvasContext: ctx, viewport }).promise;
+      }
+    } catch (e) {
+      container.innerHTML = '<p class="muted">PDF preview unavailable. Use Open or Download.</p>';
+      console.warn('PDF.js multipage render failed:', e);
+    }
+  }catch(e){
       container.innerHTML = '<p class="muted">PDF preview unavailable. Use Open or Download.</p>';
       console.warn('PDF.js render failed:', e);
     }
@@ -500,7 +519,7 @@
     // Render PDF inline using PDF.js for best compatibility
     const viewer = card.querySelector('.pdf-viewer');
     if (entry.pdfBlob || entry.pdfArrayBuffer) {
-      renderPdfCanvas(viewer, entry);
+      renderPdfPages(viewer, entry);
     }
 
     card.querySelector('.remove-card').addEventListener('click', async ()=>{ await del(entry.id); if(url) URL.revokeObjectURL(url); card.remove(); });
@@ -563,6 +582,7 @@
   });
 })();
 </script>
+
 
 
         
