@@ -189,7 +189,8 @@
 
 
 
-      <!-- STATUS REPORTS SECTION WITH LOCALSTORAGE PERSISTENCE -->
+     
+  <!-- STATUS REPORTS SECTION WITH LOCALSTORAGE PERSISTENCE -->
 <section id="status-reports-top" class="section charter-section">
   <h2>Status Reports</h2>
   <p class="muted">Submit project updates here, including milestones and progress. Attach a PDF if needed.</p>
@@ -427,7 +428,86 @@
     }
   });
 </script>
-  
+
+<script>
+// IndexedDB persistence layer added without modifying existing code
+// It intercepts form submit (capture phase) to handle saving & rendering from IndexedDB
+(function(){
+  const DB_NAME='statusReportsDB', STORE='updates', VER=1;
+  function openDB(){return new Promise((res,rej)=>{const r=indexedDB.open(DB_NAME,VER);r.onupgradeneeded=e=>{const db=e.target.result; if(!db.objectStoreNames.contains(STORE)){db.createObjectStore(STORE,{keyPath:'id'});} }; r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error);});}
+  async function getAll(){const db=await openDB();return new Promise((res,rej)=>{const tx=db.transaction(STORE,'readonly');const os=tx.objectStore(STORE);const req=os.getAll();req.onsuccess=()=>res(req.result||[]);req.onerror=()=>rej(req.error);});}
+  async function put(entry){const db=await openDB();return new Promise((res,rej)=>{const tx=db.transaction(STORE,'readwrite');tx.objectStore(STORE).put(entry);tx.oncomplete=res;tx.onerror=()=>rej(tx.error);});}
+  async function del(id){const db=await openDB();return new Promise((res,rej)=>{const tx=db.transaction(STORE,'readwrite');tx.objectStore(STORE).delete(id);tx.oncomplete=res;tx.onerror=()=>rej(tx.error);});}
+
+  function objUrl(blob){try{return blob?URL.createObjectURL(blob):null;}catch{return null;}}
+  function render(feed, entry){const pdfUrl=entry.pdfBlob?objUrl(entry.pdfBlob):null;const card=document.createElement('article');card.className='card';card.dataset.id=entry.id;card.innerHTML=`
+    <div class="card-header">
+      <div><strong>Status Update</strong> <span class="muted">• ${entry.timestamp}</span></div>
+      <div class="card-actions">
+        ${pdfUrl?`<a class="btn-link" href="${pdfUrl}" download>Download PDF</a>`:''}
+        <button type="button" class="btn-link remove-card">Remove</button>
+      </div>
+    </div>
+    <div class="card-body">
+      ${entry.rows&&entry.rows.length?`
+      <table class="status-table">
+        <thead><tr><th>#</th><th>Date</th><th>Milestone / Task</th><th>Status</th><th>Comments</th></tr></thead>
+        <tbody>
+          ${entry.rows.map(r=>`<tr><td>${r.index}</td><td>${r.date||''}</td><td>${r.milestone||''}</td><td>${r.status||''}</td><td>${r.comments||''}</td></tr>`).join('')}
+        </tbody>
+      </table>`:'<p class="muted">(No table rows provided.)</p>'}
+      ${pdfUrl?`<div style="margin-top:1rem"><object class="pdf-embed" data="${pdfUrl}" type="application/pdf"><p>PDF preview unavailable. <a href="${pdfUrl}" target="_blank">Open PDF</a></p></object></div>`:''}
+    </div>`;
+    card.querySelector('.remove-card').addEventListener('click',async()=>{await del(entry.id); if(pdfUrl) URL.revokeObjectURL(pdfUrl); card.remove();});
+    feed.prepend(card);
+  }
+
+  document.addEventListener('DOMContentLoaded', async function(){
+    const form=document.getElementById('statusForm');
+    const tableBody=document.getElementById('statusTableBody');
+    const fileInput=document.getElementById('pdfUpload');
+    const feed=document.getElementById('statusFeed');
+
+    // Load existing entries
+    try{const all=await getAll(); all.sort((a,b)=>b.id-a.id).forEach(e=>render(feed,e));}catch(e){console.warn('IDB load failed',e)}
+
+    // Capture-phase submit handler to override older listener
+    form.addEventListener('submit', async function(ev){
+      ev.preventDefault(); ev.stopImmediatePropagation();
+      const file=fileInput.files[0];
+      if(file && (file.type!=='application/pdf' && !file.name.toLowerCase().endsWith('.pdf'))){alert('The attached file must be a PDF (.pdf).');return;}
+      if(file && file.size>10*1024*1024){alert('The PDF is larger than 10 MB.');return;}
+      const rows=[...tableBody.rows].map((tr,i)=>({
+        index:i+1,
+        date:(tr.querySelector('input[type="date"]')||{}).value||'',
+        milestone:(tr.querySelector('input[name^="milestone_"]')||{}).value||'',
+        status:(tr.querySelector('select[name^="status_"]')||{}).value||'',
+        comments:(tr.querySelector('input[name^="comments_"]')||{}).value||''
+      }));
+      const entry={id:Date.now(), timestamp:new Date().toLocaleString(), rows, pdfName:file?file.name:null, pdfBlob:file||null};
+      try{await put(entry); render(feed,entry);}catch(e){alert('Could not save your update locally.');console.error(e);} 
+      // Reset to one blank row
+      form.reset();
+      tableBody.innerHTML=`<tr>
+        <td class="row-index">1</td>
+        <td><input type="date" name="date_1" required></td>
+        <td><input type="text" name="milestone_1" placeholder="Describe milestone or task" required></td>
+        <td>
+          <select name="status_1" required>
+            <option value="">Select...</option>
+            <option value="Not Started">Not Started</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>
+          </select>
+        </td>
+        <td><input type="text" name="comments_1" placeholder="Additional notes"></td>
+        <td><button type="button" class="remove-row" aria-label="Remove row">Remove</button></td>
+      </tr>`;
+    }, true); // capture=true so we handle before existing listeners
+  });
+})();
+</script>
+
         
       <!-- 1. Project Title & Description -->
       <details class="section" open="">
