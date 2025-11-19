@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDF Viewer</title>
+</head>
+<body>
+  <a href="index_3.html">← Back to Project Charter</a>
+  <h1 id="pdf-title">PDF Viewer</h1>
+  <object id="pdf-object" type="application/pdf" width="100%" height="600px"></object>
+
+  <script>
+    const params = new URLSearchParams(location.search);
+    const src = params.get('src');
+    const title = params.get('title');
+    const viewer = document.getElementById('pdf-object');
+    const header = document.getElementById('pdf-title');
+    if (src) {
+      viewer.data = src;
+      header.textContent = decodeURIComponent(title || 'PDF Viewer');
+    } else {
+      header.textContent = 'No PDF selected.';
+    }
+  </script>
+</body>
+</html>
