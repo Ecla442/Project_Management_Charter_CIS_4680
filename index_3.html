@@ -154,18 +154,6 @@
   <ul id="pdf-list"></ul>
 </details>
 
-<!-- Sidebar: Status Updates -->
-<details class="section" id="sr-sidebar">
-  <summary>🗓️ Status Updates</summary>
-  <form id="sr-form">
-    <label>Date:<br><input id="sr-date" type="date" required></label><br>
-    <label>Summary:<br><input id="sr-summary" type="text" required></label><br>
-    <label>Next Steps:<br><input id="sr-next" type="text" required></label><br>
-    <button type="submit">Add Update</button>
-  </form>
-  <ul id="sr-list"></ul>
-</details>
-          
       </div>
       <div style="margin-top:14px">
         <input id="search" class="search" placeholder="Search text…">
@@ -653,31 +641,6 @@
     renderPDFs();
     pdfForm.reset();
   };
-
-  // --- Status Updates ---
-  const srKey = 'status_updates';
-  const srForm = document.getElementById('sr-form');
-  const srList = document.getElementById('sr-list');
-  let updates = JSON.parse(localStorage.getItem(srKey) || '[]');
-
-  function renderUpdates() {
-    srList.innerHTML = updates.map(u =>
-      `<li><strong>${u.date}</strong>: ${u.summary}<br><em>${u.next}</em></li>`
-    ).join('');
-  }
-  renderUpdates();
-
-  srForm.onsubmit = e => {
-    e.preventDefault();
-    const date = document.getElementById('sr-date').value;
-    const summary = document.getElementById('sr-summary').value;
-    const next = document.getElementById('sr-next').value;
-    updates.unshift({date, summary, next});
-    localStorage.setItem(srKey, JSON.stringify(updates));
-    renderUpdates();
-    srForm.reset();
-  };
-})();
 </script>
 
 
