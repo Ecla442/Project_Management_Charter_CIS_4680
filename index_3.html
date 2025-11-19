@@ -629,7 +629,6 @@
   </script>
 
 
-
 <script>
 (function() {
   // --- PDFs ---
@@ -637,12 +636,14 @@
   const pdfForm = document.getElementById('pdf-form');
   const pdfList = document.getElementById('pdf-list');
   let pdfs = JSON.parse(localStorage.getItem(pdfKey) || '[]');
+
   function renderPDFs() {
     pdfList.innerHTML = pdfs.map(p =>
       `<li><a href="pdf_viewer.html?src=${encodeURIComponent(p.url)}&title=${encodeURIComponent(p.title)}" target="_blank">${p.title}</a></li>`
     ).join('');
   }
   renderPDFs();
+
   pdfForm.onsubmit = e => {
     e.preventDefault();
     const title = document.getElementById('pdf-title').value;
@@ -658,12 +659,14 @@
   const srForm = document.getElementById('sr-form');
   const srList = document.getElementById('sr-list');
   let updates = JSON.parse(localStorage.getItem(srKey) || '[]');
+
   function renderUpdates() {
     srList.innerHTML = updates.map(u =>
       `<li><strong>${u.date}</strong>: ${u.summary}<br><em>${u.next}</em></li>`
     ).join('');
   }
   renderUpdates();
+
   srForm.onsubmit = e => {
     e.preventDefault();
     const date = document.getElementById('sr-date').value;
