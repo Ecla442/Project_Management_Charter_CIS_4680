@@ -154,6 +154,19 @@
   <ul id="pdf-list"></ul>
 </details>
 
+<!-- Sidebar: Status Updates -->
+<details class="section" id="sr-sidebar">
+  <summary>🗓️ Status Updates</summary>
+  <form id="sr-form">
+    <label>Date:<br><input id="sr-date" type="date" required></label><br>
+    <label>Summary:<br><input id="sr-summary" type="text" required></label><br>
+    <label>Next Steps:<br><input id="sr-next" type="text" required></label><br>
+    <button type="submit">Add Update</button>
+  </form>
+  <ul id="sr-list"></ul>
+</details>
+
+
       </div>
       <div style="margin-top:14px">
         <input id="search" class="search" placeholder="Search text…">
@@ -618,30 +631,86 @@
 
 
 <script>
+<script>
+
+    
 (function() {
-  // --- PDFs ---
+  /* ------------------------------
+     📄 PROJECT PDFs
+  ------------------------------ */
   const pdfKey = 'project_pdfs';
   const pdfForm = document.getElementById('pdf-form');
   const pdfList = document.getElementById('pdf-list');
-  let pdfs = JSON.parse(localStorage.getItem(pdfKey) || '[]');
 
-  function renderPDFs() {
-    pdfList.innerHTML = pdfs.map(p =>
-      `<li><a href="pdf_viewer.html?src=${encodeURIComponent(p.url)}&title=${encodeURIComponent(p.title)}" target="_blank">${p.title}</a></li>`
-    ).join('');
-  }
-  renderPDFs();
+  if (pdfForm && pdfList) {
+    let pdfs = [];
+    try { pdfs = JSON.parse(localStorage.getItem(pdfKey) || '[]'); } catch(e){ pdfs = []; }
 
-  pdfForm.onsubmit = e => {
-    e.preventDefault();
-    const title = document.getElementById('pdf-title').value;
-    const url = document.getElementById('pdf-url').value;
-    pdfs.push({title, url});
-    localStorage.setItem(pdfKey, JSON.stringify(pdfs));
+    function renderPDFs() {
+      pdfList.innerHTML = pdfs.map(p =>
+        `<li><a href="pdf_viewer.html?src=${encodeURIComponent(p.url)}&title=${encodeURIComponent(p.title)}" target="_blank">${p.title}</a></li>`
+      ).join('');
+    }
+
     renderPDFs();
-    pdfForm.reset();
-  };
+
+    pdfForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const titleEl = document.getElementById('pdf-title');
+      const urlEl = document.getElementById('pdf-url');
+      const title = (titleEl?.value || '').trim();
+      const url = (urlEl?.value || '').trim();
+      if (!title || !url) { alert('Please provide both Title and PDF URL.'); return; }
+      pdfs.unshift({ title, url });
+      localStorage.setItem(pdfKey, JSON.stringify(pdfs));
+      renderPDFs();
+      pdfForm.reset();
+    });
+  }
+
+  /* ------------------------------
+     🗓️ STATUS UPDATES
+  ------------------------------ */
+  const srKey = 'status_updates';
+  const srForm = document.getElementById('sr-form');
+  const srList = document.getElementById('sr-list');
+
+  if (srForm && srList) {
+    let updates = [];
+    try { updates = JSON.parse(localStorage.getItem(srKey) || '[]'); } catch(e){ updates = []; }
+
+    function renderUpdates() {
+      srList.innerHTML = updates.map(u =>
+        `<li><strong>${u.date}</strong>: ${u.summary}<br><em>${u.next}</em></li>`
+      ).join('');
+    }
+
+    renderUpdates();
+
+    srForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const date = document.getElementById('sr-date').value;
+      const summary = document.getElementById('sr-summary').value;
+      const next = document.getElementById('sr-next').value;
+      updates.unshift({ date, summary, next });
+      localStorage.setItem(srKey, JSON.stringify(updates));
+      renderUpdates();
+      srForm.reset();
+    });
+  }
+
+  /* ------------------------------
+     ▶ Chevron toggle icons
+  ------------------------------ */
+  document.querySelectorAll('details.section').forEach(ds => {
+    const chev = ds.querySelector('.chev');
+    const sync = () => chev && (chev.textContent = ds.open ? '▼' : '▶');
+    sync();
+    ds.addEventListener('toggle', sync);
+  });
+})();
 </script>
+
 
 
 </body><grammarly-desktop-integration data-grammarly-shadow-root="true"><template shadowrootmode="open"><style>
