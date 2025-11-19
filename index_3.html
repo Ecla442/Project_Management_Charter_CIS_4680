@@ -142,13 +142,37 @@
         <button id="themeToggle" class="btn" title="Toggle theme">🌗 Theme</button>
         <button id="expandAll" class="btn" title="Expand all">➕ Expand</button>
         <button id="collapseAll" class="btn" title="Collapse all">➖ Collapse</button>
+
+    <!-- Sidebar: Project PDFs -->
+<details class="section" id="pdf-sidebar">
+  <summary>📄 Project PDFs</summary>
+  <form id="pdf-form">
+    <label>Title:<br><input id="pdf-title" type="text" required></label><br>
+    <label>PDF URL:<br><input id="pdf-url" type="url" required></label><br>
+    <button type="submit">Add PDF</button>
+  </form>
+  <ul id="pdf-list"></ul>
+</details>
+
+<!-- Sidebar: Status Updates -->
+<details class="section" id="sr-sidebar">
+  <summary>🗓️ Status Updates</summary>
+  <form id="sr-form">
+    <label>Date:<br><input id="sr-date" type="date" required></label><br>
+    <label>Summary:<br><input id="sr-summary" type="text" required></label><br>
+    <label>Next Steps:<br><input id="sr-next" type="text" required></label><br>
+    <button type="submit">Add Update</button>
+  </form>
+  <ul id="sr-list"></ul>
+</details>
+          
       </div>
       <div style="margin-top:14px">
         <input id="search" class="search" placeholder="Search text…">
       </div>
       <div class="toc">
         <h4>Contents</h4>
-        <div id="tocLinks"><a href="#s1" class="">1. Project Title &amp; Description</a><a href="#s2" class="">2. Vision, Mission &amp; Strategy Alignment</a><a href="#s2a" class="">2a. Project Goal (Outcome for This Semester)</a><a href="#s3" class="">3. Business Case &amp; Justification</a><a href="#s4" class="">4. High-Level Scope</a><a href="#s5" class="">5. Stakeholder Register</a><a href="#s5a" class="">5a. Stakeholder Map (Visual)</a><a href="#s6" class="active">Deliverables</a><a href="#s7" class="">Work Breakdown Structure</a><a href="#s8" class="">Task Estimation (Roll-up by Deliverable)</a><a href="#s9" class="">Budget Estimate</a><a href="#s10" class="">Project Methodology and Plan</a><a href="#s11" class="">11. Project Tools</a><a href="#s1" class="">1. Project Title &amp; Description</a><a href="#s2" class="">2. Vision, Mission &amp; Strategy Alignment</a><a href="#s3">3. Business Case &amp; Justification</a><a href="#s4" class="">4. High-Level Scope</a><a href="#s5" class="">5. Stakeholder Register</a><a href="#s5a" class="">5a. Power Interest Grid</a><a href="#s6" class="active">Deliverables</a><a href="#s7">Work Breakdown Structure</a><a href="#s8">Task Estimation (Roll-up by Deliverable)</a><a href="#s9">Budget Estimate</a><a href="#s10">Project Methodology and Plan</a><a href="#s11">11. Project Tools</a><a href="#s6" class="active">12. Status Reports</a></div>
+        <div id="tocLinks"><a href="#s1" class="">1. Project Title &amp; Description</a><a href="#s2" class="">2. Vision, Mission &amp; Strategy Alignment</a><a href="#s2a" class="">2a. Project Goal (Outcome for This Semester)</a><a href="#s3" class="">3. Business Case &amp; Justification</a><a href="#s4" class="">4. High-Level Scope</a><a href="#s5" class="">5. Stakeholder Register</a><a href="#s5a" class="">5a. Stakeholder Map (Visual)</a><a href="#s6" class="active">Deliverables</a><a href="#s7" class="">Work Breakdown Structure</a><a href="#s8" class="">Task Estimation (Roll-up by Deliverable)</a><a href="#s9" class="">Budget Estimate</a><a href="#s10" class="">Project Methodology and Plan</a><a href="#s11" class="">11. Project Tools</a><a href="#s1" class=""></div>
       </div>
     </nav>
 
@@ -603,6 +627,56 @@
 
     topBtn?.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
   </script>
+
+
+
+<script>
+(function() {
+  // --- PDFs ---
+  const pdfKey = 'project_pdfs';
+  const pdfForm = document.getElementById('pdf-form');
+  const pdfList = document.getElementById('pdf-list');
+  let pdfs = JSON.parse(localStorage.getItem(pdfKey) || '[]');
+  function renderPDFs() {
+    pdfList.innerHTML = pdfs.map(p =>
+      `<li><a href="pdf_viewer.html?src=${encodeURIComponent(p.url)}&title=${encodeURIComponent(p.title)}" target="_blank">${p.title}</a></li>`
+    ).join('');
+  }
+  renderPDFs();
+  pdfForm.onsubmit = e => {
+    e.preventDefault();
+    const title = document.getElementById('pdf-title').value;
+    const url = document.getElementById('pdf-url').value;
+    pdfs.push({title, url});
+    localStorage.setItem(pdfKey, JSON.stringify(pdfs));
+    renderPDFs();
+    pdfForm.reset();
+  };
+
+  // --- Status Updates ---
+  const srKey = 'status_updates';
+  const srForm = document.getElementById('sr-form');
+  const srList = document.getElementById('sr-list');
+  let updates = JSON.parse(localStorage.getItem(srKey) || '[]');
+  function renderUpdates() {
+    srList.innerHTML = updates.map(u =>
+      `<li><strong>${u.date}</strong>: ${u.summary}<br><em>${u.next}</em></li>`
+    ).join('');
+  }
+  renderUpdates();
+  srForm.onsubmit = e => {
+    e.preventDefault();
+    const date = document.getElementById('sr-date').value;
+    const summary = document.getElementById('sr-summary').value;
+    const next = document.getElementById('sr-next').value;
+    updates.unshift({date, summary, next});
+    localStorage.setItem(srKey, JSON.stringify(updates));
+    renderUpdates();
+    srForm.reset();
+  };
+})();
+</script>
+
 
 </body><grammarly-desktop-integration data-grammarly-shadow-root="true"><template shadowrootmode="open"><style>
       div.grammarly-desktop-integration {
