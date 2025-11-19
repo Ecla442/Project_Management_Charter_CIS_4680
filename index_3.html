@@ -634,80 +634,50 @@
 <script>
 
     
+<script>
 (function() {
-  /* ------------------------------
-     📄 PROJECT PDFs
-  ------------------------------ */
+  // --- PDFs ---
   const pdfKey = 'project_pdfs';
   const pdfForm = document.getElementById('pdf-form');
   const pdfList = document.getElementById('pdf-list');
-
-  if (pdfForm && pdfList) {
-    let pdfs = [];
-    try { pdfs = JSON.parse(localStorage.getItem(pdfKey) || '[]'); } catch(e){ pdfs = []; }
-
-    function renderPDFs() {
-      pdfList.innerHTML = pdfs.map(p =>
-        `<li><a href="pdf_viewer.html?src=${encodeURIComponent(p.url)}&title=${encodeURIComponent(p.title)}" target="_blank">${p.title}</a></li>`
-      ).join('');
-    }
-
-    renderPDFs();
-
-    pdfForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const titleEl = document.getElementById('pdf-title');
-      const urlEl = document.getElementById('pdf-url');
-      const title = (titleEl?.value || '').trim();
-      const url = (urlEl?.value || '').trim();
-      if (!title || !url) { alert('Please provide both Title and PDF URL.'); return; }
-      pdfs.unshift({ title, url });
-      localStorage.setItem(pdfKey, JSON.stringify(pdfs));
-      renderPDFs();
-      pdfForm.reset();
-    });
+  let pdfs = JSON.parse(localStorage.getItem(pdfKey) || '[]');
+  function renderPDFs() {
+    pdfList.innerHTML = pdfs.map(p =>
+      `<li><a href="pdf_viewer.html?src=${encodeURIComponent(p.url)}&title=${encodeURIComponent(p.title)}" target="_blank">${p.title}</a></li>`
+    ).join('');
   }
+  renderPDFs();
+  pdfForm.onsubmit = e => {
+    e.preventDefault();
+    const title = document.getElementById('pdf-title').value;
+    const url = document.getElementById('pdf-url').value;
+    pdfs.push({title, url});
+    localStorage.setItem(pdfKey, JSON.stringify(pdfs));
+    renderPDFs();
+    pdfForm.reset();
+  };
 
-  /* ------------------------------
-     🗓️ STATUS UPDATES
-  ------------------------------ */
+  // --- Status Updates ---
   const srKey = 'status_updates';
   const srForm = document.getElementById('sr-form');
   const srList = document.getElementById('sr-list');
-
-  if (srForm && srList) {
-    let updates = [];
-    try { updates = JSON.parse(localStorage.getItem(srKey) || '[]'); } catch(e){ updates = []; }
-
-    function renderUpdates() {
-      srList.innerHTML = updates.map(u =>
-        `<li><strong>${u.date}</strong>: ${u.summary}<br><em>${u.next}</em></li>`
-      ).join('');
-    }
-
-    renderUpdates();
-
-    srForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const date = document.getElementById('sr-date').value;
-      const summary = document.getElementById('sr-summary').value;
-      const next = document.getElementById('sr-next').value;
-      updates.unshift({ date, summary, next });
-      localStorage.setItem(srKey, JSON.stringify(updates));
-      renderUpdates();
-      srForm.reset();
-    });
+  let updates = JSON.parse(localStorage.getItem(srKey) || '[]');
+  function renderUpdates() {
+    srList.innerHTML = updates.map(u =>
+      `<li><strong>${u.date}</strong>: ${u.summary}<br><em>${u.next}</em></li>`
+    ).join('');
   }
-
-  /* ------------------------------
-     ▶ Chevron toggle icons
-  ------------------------------ */
-  document.querySelectorAll('details.section').forEach(ds => {
-    const chev = ds.querySelector('.chev');
-    const sync = () => chev && (chev.textContent = ds.open ? '▼' : '▶');
-    sync();
-    ds.addEventListener('toggle', sync);
-  });
+  renderUpdates();
+  srForm.onsubmit = e => {
+    e.preventDefault();
+    const date = document.getElementById('sr-date').value;
+    const summary = document.getElementById('sr-summary').value;
+    const next = document.getElementById('sr-next').value;
+    updates.unshift({date, summary, next});
+    localStorage.setItem(srKey, JSON.stringify(updates));
+    renderUpdates();
+    srForm.reset();
+  };
 })();
 </script>
 
