@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Project Closure Report</title>
+  <meta name="description" content="A polished, single‑page project closure site you can host on GitHub Pages. Replace placeholders with your project details." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#0b0e14;--panel:#121826;--muted:#a8b2c1;--text:#e5e7eb;--accent:#7c3aed;--accent-2:#a78bfa;--ok:#10b981;--warn:#f59e0b;--bad:#ef4444;
+      --radius:16px;--shadow:0 10px 30px rgba(0,0,0,.35);
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;}
+    a{color:var(--accent-2);text-decoration:none}
+    a:hover{text-decoration:underline}
+    .container{max-width:1100px;margin:0 auto;padding:24px}
+    header{
+      position:sticky;top:0;z-index:20;background:linear-gradient(180deg, rgba(11,14,20,.95), rgba(11,14,20,.75));backdrop-filter:saturate(160%) blur(10px);border-bottom:1px solid rgba(255,255,255,.06);
+    }
+    .nav{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+    .brand{font-weight:700;letter-spacing:.2px;font-size:18px;margin-right:auto}
+    .chip{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:#1b2336;border:1px solid rgba(255,255,255,.06)}
+    .chip svg{opacity:.8}
+    .pill{padding:10px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.08);background:#121826}
+    .cta{background:var(--accent);color:white;border:none}
+
+    .hero{display:grid;grid-template-columns:1.1fr .9fr;gap:20px;align-items:center;margin-top:24px}
+    .card{background:var(--panel);border:1px solid rgba(255,255,255,.06);border-radius:var(--radius);box-shadow:var(--shadow)}
+    .pad{padding:22px}
+    .hero h1{font-size:38px;line-height:1.1;margin:0}
+    .hero p{color:var(--muted);margin:.6rem 0 0}
+    .statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
+    .stat{background:#0f1424;border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:14px}
+    .stat small{color:var(--muted)}
+    .stat b{font-size:20px}
+
+    .toc{display:flex;gap:8px;flex-wrap:wrap}
+    .toc a{display:inline-block;background:#0f1424;border:1px solid rgba(255,255,255,.06);padding:10px 12px;border-radius:10px}
+
+    section{scroll-margin-top:84px}
+    h2{font-size:24px;margin:24px 0 8px}
+    h3{font-size:18px;margin:18px 0 6px;color:#d6d9e0}
+    p,li{color:#cbd5e1}
+    .grid{display:grid;gap:16px}
+    .grid.two{grid-template-columns:repeat(2,1fr)}
+    .grid.three{grid-template-columns:repeat(3,1fr)}
+
+    .panel{padding:18px;border-radius:14px;background:#0f1424;border:1px solid rgba(255,255,255,.06)}
+    .kpi{display:flex;align-items:center;justify-content:space-between}
+    .tag{font-size:12px;border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:4px 8px;color:#c7d2fe;background:#1b2336}
+    .status.ok{color:var(--ok)}.status.warn{color:var(--warn)}.status.bad{color:var(--bad)}
+
+    footer{margin:40px 0 80px;color:var(--muted);text-align:center}
+
+    /* Print-friendly */
+    @media print{
+      header, .toc, .chip, .pill, .cta {display:none !important}
+      body{background:white;color:black}
+      .card,.panel{break-inside:avoid}
+    }
+
+    @media (max-width:900px){
+      .hero{grid-template-columns:1fr}
+      .grid.two{grid-template-columns:1fr}
+      .grid.three{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container nav">
+      <div class="brand">Project Closure Report</div>
+      <a class="pill" href="#charter">Project Charter</a>
+      <a class="pill" href="#stakeholders">Stakeholder Interviews</a>
+      <a class="pill" href="#outcomes">Outcomes & Metrics</a>
+      <a class="pill" href="#lessons">Lessons Learned</a>
+      <a class="pill" href="#handover">Handover</a>
+      <a class="pill" href="#appendix">Appendix</a>
+      <button class="pill cta" id="printBtn">Export to PDF</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- HERO / OVERVIEW -->
+    <div class="hero">
+      <div class="card pad">
+        <span class="chip" title="Replace with your project name & key metadata">
+          <!-- icon -->
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7l10 5 10-5-10-5Z" stroke="currentColor"/><path d="M2 17l10 5 10-5" stroke="currentColor"/><path d="M2 12l10 5 10-5" stroke="currentColor"/></svg>
+          <strong id="projectName">Project Name</strong>
+        </span>
+        <h1 id="projectHeadline">Closure Summary</h1>
+        <p id="projectSummary">Brief one‑paragraph summary of why this project existed, what was delivered, and the value created. Keep this 2–4 sentences.</p>
+        <div class="statgrid">
+          <div class="stat"><small>Start → End</small><br><b id="dates">Jan 2025 → Oct 2025</b></div>
+          <div class="stat"><small>Budget</small><br><b id="budget">$450k</b></div>
+          <div class="stat"><small>Status</small><br><b class="status ok" id="status">Closed: Successful</b></div>
+        </div>
+      </div>
+      <div class="card pad">
+        <h3>Contents</h3>
+        <div class="toc">
+          <a href="#charter">Charter</a>
+          <a href="#stakeholders">Stakeholder Interviews</a>
+          <a href="#deliverables">Deliverables</a>
+          <a href="#outcomes">Outcomes & Metrics</a>
+          <a href="#risks">Risks & Issues</a>
+          <a href="#lessons">Lessons Learned</a>
+          <a href="#financials">Financials</a>
+          <a href="#handover">Handover & Support</a>
+          <a href="#appendix">Appendix</a>
+        </div>
+        <p style="margin-top:10px;color:var(--muted)">Tip: Use the “Export to PDF” button to share a printable closure report.</p>
+      </div>
+    </div>
+
+    <!-- PROJECT CHARTER -->
+    <section id="charter" class="card pad">
+      <h2>Project Charter</h2>
+      <div class="grid two">
+        <div class="panel">
+          <h3>Purpose & Background</h3>
+          <p>[Replace] Why are we doing this? What problem/opportunity does this project address? Any strategic alignment.</p>
+        </div>
+        <div class="panel">
+          <h3>Objectives & Success Criteria</h3>
+          <ul>
+            <li>[Replace] Objective 1 — measurable result</li>
+            <li>[Replace] Objective 2 — measurable result</li>
+            <li>[Replace] Objective 3 — measurable result</li>
+          </ul>
+        </div>
+        <div class="panel">
+          <h3>Scope</h3>
+          <ul>
+            <li>In Scope: [Replace]</li>
+            <li>Out of Scope: [Replace]</li>
+          </ul>
+        </div>
+        <div class="panel">
+          <h3>Governance</h3>
+          <p>Sponsor: <b>[Name]</b><br>Steering Committee: <b>[Names]</b><br>PM: <b>[Name]</b></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- STAKEHOLDER INTERVIEWS -->
+    <section id="stakeholders" class="card pad">
+      <h2>Stakeholder Interviews</h2>
+      <p style="color:var(--muted)">Capture insights and feedback from key stakeholders. You can repeat the <em>charter-like</em> layout below for each stakeholder: Context, Goals, Pain Points, Outcomes.</p>
+      <div id="stakeholderList" class="grid two">
+        <div class="panel">
+          <h3>Stakeholder: [Name, Title, Org]</h3>
+          <p><b>Context:</b> [Background & role in project]</p>
+          <p><b>Goals:</b> [Desired outcomes]</p>
+          <p><b>Pain Points:</b> [Problems before project]</p>
+          <p><b>Outcomes:</b> [What changed? Quotes welcome]</p>
+        </div>
+        <div class="panel">
+          <h3>Stakeholder: [Name, Title, Org]</h3>
+          <p><b>Context:</b> …</p>
+          <p><b>Goals:</b> …</p>
+          <p><b>Pain Points:</b> …</p>
+          <p><b>Outcomes:</b> …</p>
+        </div>
+      </div>
+      <button class="pill" id="addStakeholder">+ Add stakeholder block</button>
+    </section>
+
+    <!-- DELIVERABLES -->
+    <section id="deliverables" class="card pad">
+      <h2>Deliverables</h2>
+      <div class="grid two">
+        <div class="panel">
+          <h3>Major Deliverables</h3>
+          <ul id="deliverableList">
+            <li>[Replace] Deliverable A (date)</li>
+            <li>[Replace] Deliverable B (date)</li>
+            <li>[Replace] Deliverable C (date)</li>
+          </ul>
+        </div>
+        <div class="panel">
+          <h3>Acceptance & Sign‑off</h3>
+          <p>Sponsor: __________________ Date: ____ / ____ / ______</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- OUTCOMES & METRICS -->
+    <section id="outcomes" class="card pad">
+      <h2>Outcomes & Metrics</h2>
+      <div class="grid three">
+        <div class="panel kpi">
+          <div>
+            <h3>Business Impact</h3>
+            <p>e.g., +12% conversion, −18% cycle time</p>
+          </div>
+          <span class="tag">Target vs Actual</span>
+        </div>
+        <div class="panel kpi">
+          <div>
+            <h3>Adoption</h3>
+            <p>e.g., 500 MAU, 85% feature usage</p>
+          </div>
+          <span class="tag">Usage</span>
+        </div>
+        <div class="panel kpi">
+          <div>
+            <h3>Quality</h3>
+            <p>e.g., −35% defects, NPS +22</p>
+          </div>
+          <span class="tag">QA</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- RISKS & ISSUES -->
+    <section id="risks" class="card pad">
+      <h2>Risks & Issues</h2>
+      <div class="grid two">
+        <div class="panel">
+          <h3>Top Risks</h3>
+          <ul>
+            <li>[Risk] — Mitigation</li>
+            <li>[Risk] — Mitigation</li>
+          </ul>
+        </div>
+        <div class="panel">
+          <h3>Major Issues</h3>
+          <ul>
+            <li>[Issue] — Resolution</li>
+            <li>[Issue] — Resolution</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- LESSONS LEARNED -->
+    <section id="lessons" class="card pad">
+      <h2>Lessons Learned</h2>
+      <div class="panel">
+        <h3>What Went Well</h3>
+        <ul>
+          <li>[Replace] Example</li>
+          <li>[Replace] Example</li>
+        </ul>
+        <h3>What We’d Change</h3>
+        <ul>
+          <li>[Replace] Example</li>
+          <li>[Replace] Example</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- FINANCIALS -->
+    <section id="financials" class="card pad">
+      <h2>Financials</h2>
+      <div class="grid two">
+        <div class="panel">
+          <h3>Budget vs Actual</h3>
+          <ul>
+            <li>CapEx: [Budget] → [Actual]</li>
+            <li>OpEx: [Budget] → [Actual]</li>
+            <li>Total: [Budget] → [Actual]</li>
+          </ul>
+        </div>
+        <div class="panel">
+          <h3>Notes</h3>
+          <p>[Variance drivers, change orders, savings]</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- HANDOVER & SUPPORT -->
+    <section id="handover" class="card pad">
+      <h2>Handover & Support</h2>
+      <div class="grid two">
+        <div class="panel">
+          <h3>Runbook / SOP</h3>
+          <p>Link to runbooks, on‑call, escalation paths, and documentation.</p>
+        </div>
+        <div class="panel">
+          <h3>Owners</h3>
+          <ul>
+            <li>Product Owner: [Name] — [Contact]</li>
+            <li>Tech Owner: [Name] — [Contact]</li>
+            <li>Support: [Team] — [Channel]</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- APPENDIX -->
+    <section id="appendix" class="card pad">
+      <h2>Appendix & Downloads</h2>
+      <div class="panel">
+        <ul>
+          <li><a href="#">Original Project Charter (PDF)</a></li>
+          <li><a href="#">Stakeholder Interview Notes (DOCX)</a></li>
+          <li><a href="#">Architecture Diagram (PNG)</a></li>
+        </ul>
+        <p style="color:var(--muted)">Place related assets in the repository (e.g., <code>/docs/assets</code>) and link them here.</p>
+      </div>
+    </section>
+
+    <footer>
+      <small>© <span id="year"></span> • Project Closure Report • Built for GitHub Pages</small>
+    </footer>
+  </main>
+
+  <script>
+    // Simple helpers for adding repeated, charter-like stakeholder blocks
+    document.getElementById('addStakeholder').addEventListener('click', () => {
+      const block = document.createElement('div');
+      block.className = 'panel';
+      block.innerHTML = `
+        <h3>Stakeholder: [Name, Title, Org]</h3>
+        <p><b>Context:</b> …</p>
+        <p><b>Goals:</b> …</p>
+        <p><b>Pain Points:</b> …</p>
+        <p><b>Outcomes:</b> …</p>
+      `;
+      document.getElementById('stakeholderList').appendChild(block);
+    });
+
+    document.getElementById('printBtn').addEventListener('click',()=>window.print());
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    /*
+      👉 How to customize
+      - Replace placeholder content inline.
+      - To add a new section similar to the charter layout, copy a <section> block, give it a unique id, and use .grid + .panel cards.
+
+      👉 GitHub Pages setup
+      - Create a new public repo named e.g. project-closure.
+      - Add this file as index.html (at repo root).
+      - Commit & push. In Settings → Pages, set Source to “Deploy from a branch”, branch: main, folder: / (root).
+      - Your site will be live at https://<your-username>.github.io/<repo>/
+
+      Optional: Add /docs/assets for PDFs/images, then link them in Appendix.
+    */
+  </script>
+</body>
+</html>
