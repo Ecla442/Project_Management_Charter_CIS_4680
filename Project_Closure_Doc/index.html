@@ -47,7 +47,7 @@
 
   <main>
     <section class="panel">
-      <h1>Everett M. Clayton-Skinner - Final Project Closure Site - Fall 2025</h1>
+      <h1>Minimal Project Closure</h1>
       <p class="help">This site is intentionally simple. Replace placeholders below. For PDFs, add your files to the repo (e.g., <code>/assets/</code>) and update the links. GitHub Pages is static, so there is no server‑side file upload.</p>
     </section>
 
@@ -99,20 +99,6 @@ TO DO: Replace with your real names/roles.</textarea>
           <label>Outcomes</label>
           <textarea>Centralized runbook + ownership matrix; early indicators show 15% faster resolution. TO DO: Replace with your actual results/quotes.</textarea>
         </div>
-
-        <div class="panel">
-          <label>Stakeholder</label>
-          <input type="text" value="Jordan Kim, Director of Support" />
-          <label>Context</label>
-          <textarea>Owns support processes affected by the project; sought faster resolution times and clearer ownership after handoff.</textarea>
-          <label>Goals</label>
-          <textarea>Reduce average time-to-resolution by 20%; ensure L2/L3 escalation clarity.</textarea>
-          <label>Pain Points</label>
-          <textarea>Unclear post-launch ownership; scattered documentation.</textarea>
-          <label>Outcomes</label>
-          <textarea>Centralized runbook + ownership matrix; early indicators show 15% faster resolution. TO DO: Replace with your actual results/quotes.</textarea>
-        </div>
-        
         <div class="panel">
           <label>Stakeholder</label>
           <input type="text" value="Riley Chen, Product Manager" />
@@ -132,10 +118,18 @@ TO DO: Replace with your real names/roles.</textarea>
     <section id="status">
       <h2>Project Status Updates (PDF)</h2>
       <div class="panel">
-        <p class="help">Because GitHub Pages is static, "upload" means adding the PDF to the repository and linking to it. Recommended path: <code>/assets/status/</code>. After you commit a PDF, paste its path below.</p>
-        <label for="statusHref">PDF Link</label>
-        <input id="statusHref" type="text" value="/assets/status/2025-10-status-sample.pdf" />
-        <p><a id="statusLink" href="/assets/status/2025-10-status-sample.pdf" target="_blank">Open 2025-10-status-sample.pdf</a></p>
+        <p class="help">Because GitHub Pages is static, "upload" means adding the PDFs to the repository and linking to them. Recommended path: <code>/assets/status/</code>. After you commit PDFs, paste their paths below.</p>
+
+        <h3>Available Status PDFs</h3>
+        <ul id="statusList">
+          <li><a href="/assets/status/2025-10-status-sample.pdf" target="_blank">2025-10 Status Update (Sample)</a></li>
+        </ul>
+
+        <label for="statusHref">Add Another PDF Link</label>
+        <input id="statusHref" type="text" placeholder="/assets/status/2025-09-status.pdf" />
+        <button class="pill" id="addStatusPdf">+ Add Status PDF Link</button>
+
+        <p class="help">Clicking a link above opens the PDF. You can also preview one below:</p>
         <embed id="statusEmbed" class="embed" type="application/pdf" src="/assets/status/2025-10-status-sample.pdf" />
       </div>
     </section>
@@ -156,25 +150,77 @@ TO DO: Replace with your real names/roles.</textarea>
     </footer>
   </main>
 
-  <script>
-    const byId = (id)=>document.getElementById(id);
-    const setPdf = (hrefId, linkId, embedId)=>{
-      const href = byId(hrefId).value.trim();
-      if(!href){byId(linkId).href = '#'; byId(linkId).textContent='Open PDF'; byId(embedId).removeAttribute('src'); return}
-      byId(linkId).href = href;
-      byId(linkId).textContent = 'Open ' + href.split('/').pop();
-      byId(embedId).src = href;
-    };
-    ['statusHref','closureHref'].forEach(id=>{
-      byId(id).addEventListener('change', ()=>{
-        if(id==='statusHref') setPdf('statusHref','statusLink','statusEmbed');
-        if(id==='closureHref') setPdf('closureHref','closureLink','closureEmbed');
+    <script>
+    const byId = (id) => document.getElementById(id);
+
+    function wireStatusLinks() {
+      const list = byId('statusList');
+      const preview = byId('statusEmbed');
+      if (!list || !preview) return;
+      list.querySelectorAll('a').forEach((a) => {
+        a.addEventListener('click', (e) => {
+          e.preventDefault();
+          const href = a.getAttribute('href');
+          if (href) preview.src = href;
+        });
       });
-    });
-    document.addEventListener('DOMContentLoaded',()=>{
+    }
+
+    function addStatusPdfLink() {
+      const input = byId('statusHref');
+      const list = byId('statusList');
+      const preview = byId('statusEmbed');
+      if (!input || !list || !preview) return;
+      const href = input.value.trim();
+      if (!href) return;
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = href;
+      a.textContent = href.split('/').pop() || href;
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        preview.src = href;
+      });
+      li.appendChild(a);
+      list.appendChild(li);
+      preview.src = href;
+      input.value = '';
+    }
+
+    function setupClosureInput() {
+      const input = byId('closureHref');
+      const link = byId('closureLink');
+      const preview = byId('closureEmbed');
+      if (!input || !link || !preview) return;
+
+      function updateClosure() {
+        const href = input.value.trim();
+        if (!href) {
+          link.href = '#';
+          link.textContent = 'Open PDF';
+          preview.removeAttribute('src');
+          return;
+        }
+        link.href = href;
+        link.textContent = href.split('/').pop() || href;
+        preview.src = href;
+      }
+
+      input.addEventListener('change', updateClosure);
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const href = link.getAttribute('href');
+        if (href && href !== '#') preview.src = href;
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('year').textContent = new Date().getFullYear();
+      wireStatusLinks();
+      const addBtn = document.getElementById('addStatusPdf');
+      if (addBtn) addBtn.addEventListener('click', addStatusPdfLink);
+      setupClosureInput();
     });
   </script>
 </body>
 </html>
-
