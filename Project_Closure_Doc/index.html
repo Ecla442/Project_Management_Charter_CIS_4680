@@ -115,26 +115,25 @@ TO DO: Replace with your real names/roles.</textarea>
       <p class="help">Duplicate a block to add more stakeholders (copy/paste one of the panels above).</p>
     </section>
 
-    <section id="status">
-      <h2>Project Status Updates (PDF)</h2>
-      <div class="panel">
-        <p class="help">Because GitHub Pages is static, "upload" means adding the PDFs to the repository and linking to them. Recommended path: <code>/assets/status/</code>. After you commit PDFs, paste their paths below.</p>
+ <section id="status">
+<h2>Project Status Updates (PDF)</h2>
+<div class="panel">
+<p class="help">These links open your status reports in a new tab and also update the preview below. Your PDFs should live here:<br>
+<code>Project_Closure_Doc/assets/status/</code></p>
 
-        <h3>Available Status PDFs</h3>
-        <ul id="statusList">
-          <li><a href="/assets/status/Week 6 Status Report.pdf" target="_blank">Week 6 Status Report</a></li>
-          <li><a href="/assets/status/Week 8 Status Report (2_3).pdf" target="_blank">Week 8 Status Report</a></li>
-          <li><a href="/assets/status/Week 9.pdf" target="_blank">Week 9 Status Report</a></li>
-        </ul>
 
-        <label for="statusHref">Add Another PDF Link</label>
-        <input id="statusHref" type="text" placeholder="/assets/status/2025-09-status.pdf" />
-        <button class="pill" id="addStatusPdf">+ Add Status PDF Link</button>
+<h3>Available Status PDFs</h3>
+<ul id="statusList">
+<li><a href="assets/status/Week 6 Status Report.pdf" target="_blank">Week 6 Status Report</a></li>
+<li><a href="assets/status/Week 8 Status Report (2_3).pdf" target="_blank">Week 8 Status Report</a></li>
+<li><a href="assets/status/Week 9.pdf" target="_blank">Week 9 Status Report</a></li>
+</ul>
 
-        <p class="help">Clicking a link above opens the PDF. You can also preview one below:</p>
-        <embed id="statusEmbed" class="embed" type="application/pdf" src="/assets/status/2025-10-status-sample.pdf" />
-      </div>
-    </section>
+
+<p class="help">Preview of selected PDF:</p>
+<embed id="statusEmbed" class="embed" type="application/pdf" src="assets/status/Week 6 Status Report.pdf"/>
+</div>
+</section>
 
     <section id="closure">
       <h2>Project Closure Document (PDF)</h2>
